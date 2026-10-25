@@ -1,0 +1,435 @@
+{
+  "as_of": "2026-10-01",
+  "forecasts": [
+    {
+      "series_id": "hardware_unit:EDGE-100",
+      "unit": "USD/unit",
+      "as_of": "2026-10-01",
+      "last_observation": "2026-09",
+      "history_months": 36,
+      "synthetic_data": true,
+      "data_version": "sha256:967b3859bf273b12",
+      "horizon": 6,
+      "method": "naive",
+      "method_params": null,
+      "best_baseline": "naive",
+      "candidate_beats_best_baseline": false,
+      "path": [
+        {
+          "month": "2026-10",
+          "horizon": 1,
+          "base": "588.47",
+          "low": "570.64",
+          "high": "606.30",
+          "scenario_width_pct": 3.03,
+          "backtest_n": 18,
+          "used_by_quote": false
+        },
+        {
+          "month": "2026-11",
+          "horizon": 2,
+          "base": "588.47",
+          "low": "569.98",
+          "high": "606.96",
+          "scenario_width_pct": 3.14,
+          "backtest_n": 17,
+          "used_by_quote": true
+        },
+        {
+          "month": "2026-12",
+          "horizon": 3,
+          "base": "588.47",
+          "low": "567.53",
+          "high": "609.41",
+          "scenario_width_pct": 3.56,
+          "backtest_n": 16,
+          "used_by_quote": true
+        },
+        {
+          "month": "2027-01",
+          "horizon": 4,
+          "base": "588.47",
+          "low": "566.25",
+          "high": "610.69",
+          "scenario_width_pct": 3.78,
+          "backtest_n": 15,
+          "used_by_quote": false
+        },
+        {
+          "month": "2027-02",
+          "horizon": 5,
+          "base": "588.47",
+          "low": "563.81",
+          "high": "613.13",
+          "scenario_width_pct": 4.19,
+          "backtest_n": 14,
+          "used_by_quote": false
+        },
+        {
+          "month": "2027-03",
+          "horizon": 6,
+          "base": "588.47",
+          "low": "561.41",
+          "high": "615.53",
+          "scenario_width_pct": 4.6,
+          "backtest_n": 13,
+          "used_by_quote": false
+        }
+      ],
+      "scenario_definition": "low/high = base x (1 -/+ q), q = 90th percentile of absolute percentage error for the selected method at that horizon in the rolling backtest. These are scenarios, not calibrated prediction intervals.",
+      "backtest": {
+        "min_train_months": 18,
+        "cutoffs": 18,
+        "selection_rule": "lowest mean MAE across horizons 1..H; ties go to the simpler method",
+        "scores": {
+          "naive": {
+            "by_horizon": [
+              {
+                "horizon": 1,
+                "n": 18,
+                "mae": 7.36,
+                "wape_pct": 1.27
+              },
+              {
+                "horizon": 2,
+                "n": 17,
+                "mae": 7.3,
+                "wape_pct": 1.26
+              },
+              {
+                "horizon": 3,
+                "n": 16,
+                "mae": 9.37,
+                "wape_pct": 1.62
+              },
+              {
+                "horizon": 4,
+                "n": 15,
+                "mae": 10.91,
+                "wape_pct": 1.88
+              },
+              {
+                "horizon": 5,
+                "n": 14,
+                "mae": 13.0,
+                "wape_pct": 2.24
+              },
+              {
+                "horizon": 6,
+                "n": 13,
+                "mae": 15.5,
+                "wape_pct": 2.66
+              }
+            ],
+            "mean_mae": 10.57,
+            "overall_wape_pct": 1.77,
+            "n_forecasts": 93
+          },
+          "seasonal_naive": {
+            "by_horizon": [
+              {
+                "horizon": 1,
+                "n": 18,
+                "mae": 23.69,
+                "wape_pct": 4.1
+              },
+              {
+                "horizon": 2,
+                "n": 17,
+                "mae": 23.0,
+                "wape_pct": 3.98
+              },
+              {
+                "horizon": 3,
+                "n": 16,
+                "mae": 22.67,
+                "wape_pct": 3.91
+              },
+              {
+                "horizon": 4,
+                "n": 15,
+                "mae": 22.25,
+                "wape_pct": 3.84
+              },
+              {
+                "horizon": 5,
+                "n": 14,
+                "mae": 22.31,
+                "wape_pct": 3.84
+              },
+              {
+                "horizon": 6,
+                "n": 13,
+                "mae": 22.16,
+                "wape_pct": 3.8
+              }
+            ],
+            "mean_mae": 22.68,
+            "overall_wape_pct": 3.92,
+            "n_forecasts": 93
+          },
+          "damped_holt": {
+            "by_horizon": [
+              {
+                "horizon": 1,
+                "n": 18,
+                "mae": 6.47,
+                "wape_pct": 1.12
+              },
+              {
+                "horizon": 2,
+                "n": 17,
+                "mae": 7.99,
+                "wape_pct": 1.38
+              },
+              {
+                "horizon": 3,
+                "n": 16,
+                "mae": 11.16,
+                "wape_pct": 1.93
+              },
+              {
+                "horizon": 4,
+                "n": 15,
+                "mae": 15.4,
+                "wape_pct": 2.66
+              },
+              {
+                "horizon": 5,
+                "n": 14,
+                "mae": 17.82,
+                "wape_pct": 3.07
+              },
+              {
+                "horizon": 6,
+                "n": 13,
+                "mae": 22.09,
+                "wape_pct": 3.79
+              }
+            ],
+            "mean_mae": 13.49,
+            "overall_wape_pct": 2.22,
+            "n_forecasts": 93
+          }
+        }
+      },
+      "flags": [],
+      "status": "ok"
+    },
+    {
+      "series_id": "freight_shipment:LANE-OAK-PHX",
+      "unit": "USD/shipment",
+      "as_of": "2026-10-01",
+      "last_observation": "2026-09",
+      "history_months": 36,
+      "synthetic_data": true,
+      "data_version": "sha256:f298c1dabc456a60",
+      "horizon": 6,
+      "method": "seasonal_naive",
+      "method_params": null,
+      "best_baseline": "seasonal_naive",
+      "candidate_beats_best_baseline": false,
+      "path": [
+        {
+          "month": "2026-10",
+          "horizon": 1,
+          "base": "951.60",
+          "low": "898.18",
+          "high": "1005.02",
+          "scenario_width_pct": 5.61,
+          "backtest_n": 18,
+          "used_by_quote": false
+        },
+        {
+          "month": "2026-11",
+          "horizon": 2,
+          "base": "979.28",
+          "low": "924.31",
+          "high": "1034.25",
+          "scenario_width_pct": 5.61,
+          "backtest_n": 17,
+          "used_by_quote": true
+        },
+        {
+          "month": "2026-12",
+          "horizon": 3,
+          "base": "965.89",
+          "low": "911.67",
+          "high": "1020.11",
+          "scenario_width_pct": 5.61,
+          "backtest_n": 16,
+          "used_by_quote": true
+        },
+        {
+          "month": "2027-01",
+          "horizon": 4,
+          "base": "963.79",
+          "low": "909.69",
+          "high": "1017.89",
+          "scenario_width_pct": 5.61,
+          "backtest_n": 15,
+          "used_by_quote": false
+        },
+        {
+          "month": "2027-02",
+          "horizon": 5,
+          "base": "939.98",
+          "low": "895.71",
+          "high": "984.25",
+          "scenario_width_pct": 4.71,
+          "backtest_n": 14,
+          "used_by_quote": false
+        },
+        {
+          "month": "2027-03",
+          "horizon": 6,
+          "base": "931.25",
+          "low": "887.39",
+          "high": "975.11",
+          "scenario_width_pct": 4.71,
+          "backtest_n": 13,
+          "used_by_quote": false
+        }
+      ],
+      "scenario_definition": "low/high = base x (1 -/+ q), q = 90th percentile of absolute percentage error for the selected method at that horizon in the rolling backtest. These are scenarios, not calibrated prediction intervals.",
+      "backtest": {
+        "min_train_months": 18,
+        "cutoffs": 18,
+        "selection_rule": "lowest mean MAE across horizons 1..H; ties go to the simpler method",
+        "scores": {
+          "naive": {
+            "by_horizon": [
+              {
+                "horizon": 1,
+                "n": 18,
+                "mae": 25.18,
+                "wape_pct": 2.8
+              },
+              {
+                "horizon": 2,
+                "n": 17,
+                "mae": 44.18,
+                "wape_pct": 4.89
+              },
+              {
+                "horizon": 3,
+                "n": 16,
+                "mae": 56.99,
+                "wape_pct": 6.28
+              },
+              {
+                "horizon": 4,
+                "n": 15,
+                "mae": 65.75,
+                "wape_pct": 7.22
+              },
+              {
+                "horizon": 5,
+                "n": 14,
+                "mae": 74.5,
+                "wape_pct": 8.16
+              },
+              {
+                "horizon": 6,
+                "n": 13,
+                "mae": 77.93,
+                "wape_pct": 8.5
+              }
+            ],
+            "mean_mae": 57.42,
+            "overall_wape_pct": 6.11,
+            "n_forecasts": 93
+          },
+          "seasonal_naive": {
+            "by_horizon": [
+              {
+                "horizon": 1,
+                "n": 18,
+                "mae": 23.89,
+                "wape_pct": 2.65
+              },
+              {
+                "horizon": 2,
+                "n": 17,
+                "mae": 24.22,
+                "wape_pct": 2.68
+              },
+              {
+                "horizon": 3,
+                "n": 16,
+                "mae": 24.62,
+                "wape_pct": 2.71
+              },
+              {
+                "horizon": 4,
+                "n": 15,
+                "mae": 23.86,
+                "wape_pct": 2.62
+              },
+              {
+                "horizon": 5,
+                "n": 14,
+                "mae": 22.05,
+                "wape_pct": 2.41
+              },
+              {
+                "horizon": 6,
+                "n": 13,
+                "mae": 22.7,
+                "wape_pct": 2.48
+              }
+            ],
+            "mean_mae": 23.56,
+            "overall_wape_pct": 2.6,
+            "n_forecasts": 93
+          },
+          "damped_holt": {
+            "by_horizon": [
+              {
+                "horizon": 1,
+                "n": 18,
+                "mae": 28.36,
+                "wape_pct": 3.15
+              },
+              {
+                "horizon": 2,
+                "n": 17,
+                "mae": 51.63,
+                "wape_pct": 5.72
+              },
+              {
+                "horizon": 3,
+                "n": 16,
+                "mae": 73.99,
+                "wape_pct": 8.16
+              },
+              {
+                "horizon": 4,
+                "n": 15,
+                "mae": 92.37,
+                "wape_pct": 10.14
+              },
+              {
+                "horizon": 5,
+                "n": 14,
+                "mae": 105.76,
+                "wape_pct": 11.58
+              },
+              {
+                "horizon": 6,
+                "n": 13,
+                "mae": 115.6,
+                "wape_pct": 12.61
+              }
+            ],
+            "mean_mae": 77.95,
+            "overall_wape_pct": 8.22,
+            "n_forecasts": 93
+          }
+        }
+      },
+      "flags": [],
+      "status": "ok"
+    }
+  ]
+}

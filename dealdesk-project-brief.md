@@ -259,7 +259,7 @@ These assignments use the supplied profiles and portfolio evidence, including Mi
 
 ### Individual task lists
 
-**Suhas:** own the GB10 and chosen qualifying stack; verify local model endpoint; connect one channel; build tool wrappers and bounded orchestration; persist approvals, jobs, and review events; establish role identity; implement minimal outbound adapter; run offline and injection/disclosure checks; own reset, warm-up, and hardware return. First milestone: request reaches agent and calls a mock pricing tool by 11:00. Final evidence: runtime/config snapshot, blocked-egress log, offline recording.
+**Suhas:** own the GB10 and chosen qualifying stack; verify local model endpoint; connect one channel; build tool wrappers and bounded orchestration; persist approvals, jobs, and review events; esta-blish role identity; implement minimal outbound adapter; run offline and injection/disclosure checks; own reset, warm-up, and hardware return. First milestone: request reaches agent and calls a mock pricing tool by 11:00. Final evidence: runtime/config snapshot, blocked-egress log, offline recording.
 
 **Khushi:** define units/as-of dates and generate numeric data; implement the dated cost ledger, Decimal-based prices/margins, feasible range, and sensitivity; create the cost update that changes one quote; implement a baseline forecast first and compare one candidate only if time allows; expose one validated numerical JSON contract. Jai supplies expected outputs and runs checks; Suhas wires the wrapper. First milestone: hand-priced fixture passes by 11:30; baseline forecast integrated by 12:30. Final evidence: numerical module, reproducible data, arithmetic fixtures, forecast table/chart, cost-shock result.
 

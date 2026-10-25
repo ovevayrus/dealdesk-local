@@ -1,0 +1,10 @@
+[project]
+name = "dealdesk-local"
+version = "0.1.0"
+description = "Single-user DealDesk Local chatbot demo over synthetic pricing data"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"

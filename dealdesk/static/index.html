@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DealDesk Local</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">DD</span>
+      <div>
+        <h1>DealDesk Local</h1>
+        <p class="tagline">Synthetic data &middot; single-user demo</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span id="mode-pill" class="pill pill-muted" title="Runtime mode">Connecting&hellip;</span>
+      <button id="reset-btn" class="btn btn-ghost" type="button">Reset demo</button>
+    </div>
+  </header>
+  <p id="mode-note" class="mode-note" hidden></p>
+
+  <main class="chat" aria-label="Conversation">
+    <div id="messages" class="messages" aria-live="polite"></div>
+    <div class="composer-wrap">
+      <div id="suggestions" class="suggestions" aria-label="Suggested prompts">
+        <button type="button" class="chip">Recommend a price for the demo customer.</button>
+        <button type="button" class="chip">Can we offer $136,000?</button>
+        <button type="button" class="chip">Why is this price justified?</button>
+        <button type="button" class="chip">What do we know about this customer and competitor?</button>
+        <button type="button" class="chip">Show the supply and delivery cost forecast.</button>
+        <button type="button" class="chip">What happens if supplier costs increase?</button>
+        <button type="button" class="chip chip-warn">Apply supplier cost increase</button>
+      </div>
+      <form id="composer" class="composer" autocomplete="off">
+        <label class="sr-only" for="message-input">Message</label>
+        <input id="message-input" name="message" type="text" maxlength="2000"
+               placeholder="Ask about price, discounts, costs, the customer, competitors, or the forecast">
+        <button id="send-btn" class="btn btn-primary" type="submit">Send</button>
+      </form>
+      <p class="footnote">Fictional seller, customers, costs, and policy. Prices come from the local pricing engine;
+        release is always a human action.</p>
+    </div>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

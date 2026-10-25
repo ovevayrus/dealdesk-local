@@ -1,0 +1,668 @@
+{
+  "schema_version": "1.0",
+  "synthetic": true,
+  "description": "Synthetic demonstration inputs and independently calculated reference expectations; not real company policy, market data, forecasts, or approved customer offers. Each case is self-contained.",
+  "policy": {
+    "id": "synthetic-demo-v1",
+    "currency": "USD",
+    "minimum_gross_margin": "0.25",
+    "representative_max_discount": "0.10",
+    "director_max_discount": "0.20",
+    "cost_rounding": "ROUND_HALF_UP",
+    "floor_rounding": "ROUND_CEILING",
+    "display_percentage_places": 2
+  },
+  "units": {
+    "money": "inputs.currency",
+    "hardware": "unit",
+    "freight": "shipment",
+    "installation": "hour",
+    "service": "active_unit * month"
+  },
+  "cases": [
+    {
+      "id": "standard_offer",
+      "name": "STANDARD OFFER",
+      "purpose": "Verify a 10% concession within representative authority and the independently calculated stress margin and floor.",
+      "inputs": {
+        "quote_id": "SYN-REFERENCE-001",
+        "quote_version": 1,
+        "currency": "USD",
+        "list_revenue": "160000.00",
+        "offer_revenue": "144000.00",
+        "delivery_date": "2026-12-01",
+        "quote_expires_on": "2026-11-15",
+        "payment_terms": "standard_upfront",
+        "cost_feed_version": "synthetic-costs-v1",
+        "cost_as_of_date": "2026-10-25",
+        "stress_scenario": "joint_cost_stress_v1",
+        "hardware": [
+          {
+            "procurement_date": "2026-11-01",
+            "units": 100,
+            "base_unit_cost": "600.00",
+            "stress_unit_cost": "660.00"
+          }
+        ],
+        "freight": [
+          {
+            "shipment_date": "2026-11-28",
+            "shipments": 2,
+            "base_cost_per_shipment": "1000.00",
+            "stress_cost_per_shipment": "1200.00"
+          }
+        ],
+        "installation": {
+          "installation_date": "2026-12-01",
+          "hours": "40",
+          "base_loaded_hourly_rate": "100.00",
+          "stress_loaded_hourly_rate": "100.00"
+        },
+        "service": [
+          {
+            "start_date": "2026-12-01",
+            "active_units": 100,
+            "applicable_months": 12,
+            "base_monthly_cost_per_unit": "20.00",
+            "stress_monthly_cost_per_unit": "21.00"
+          }
+        ],
+        "account_id": "SYN-ACCOUNT-001",
+        "bundle_id": "SYN-100-UNITS-12-MONTH-SERVICE"
+      },
+      "expected": {
+        "currency": "USD",
+        "approval_outcome": "representative_authority",
+        "release_allowed": true,
+        "review_required": false,
+        "missing_inputs": [],
+        "messages": [],
+        "base_costs": {
+          "hardware": "60000.00",
+          "freight": "2000.00",
+          "installation": "4000.00",
+          "service": "24000.00",
+          "total": "90000.00"
+        },
+        "stress_costs": {
+          "hardware": "66000.00",
+          "freight": "2400.00",
+          "installation": "4000.00",
+          "service": "25200.00",
+          "total": "97600.00"
+        },
+        "stress_reserve": "7600.00",
+        "offer_revenue": "144000.00",
+        "discount_percent": "10.00",
+        "stress_margin_percent": "32.22",
+        "economic_floor": "130133.34"
+      },
+      "calculation": "100 * 600 + 2 * 1000 + 40 * 100 + 100 * 20 * 12 = 90000 USD base cost. Stress = 66000 + 2400 + 4000 + 25200 = 97600 USD. (144000 - 97600) / 144000 * 100 = 32.2222...%, displayed 32.22%. ceil_to_cent(97600 / 0.75) = 130133.34 USD. (160000 - 144000) / 160000 = 10%; representative eligible for human release."
+    },
+    {
+      "id": "negotiated_offer",
+      "name": "NEGOTIATED OFFER",
+      "purpose": "Verify the 15% negotiated concession is profitable but needs sales director approval before release.",
+      "inputs": {
+        "quote_id": "SYN-REFERENCE-001",
+        "quote_version": 1,
+        "currency": "USD",
+        "list_revenue": "160000.00",
+        "offer_revenue": "136000.00",
+        "delivery_date": "2026-12-01",
+        "quote_expires_on": "2026-11-15",
+        "payment_terms": "standard_upfront",
+        "cost_feed_version": "synthetic-costs-v1",
+        "cost_as_of_date": "2026-10-25",
+        "stress_scenario": "joint_cost_stress_v1",
+        "hardware": [
+          {
+            "procurement_date": "2026-11-01",
+            "units": 100,
+            "base_unit_cost": "600.00",
+            "stress_unit_cost": "660.00"
+          }
+        ],
+        "freight": [
+          {
+            "shipment_date": "2026-11-28",
+            "shipments": 2,
+            "base_cost_per_shipment": "1000.00",
+            "stress_cost_per_shipment": "1200.00"
+          }
+        ],
+        "installation": {
+          "installation_date": "2026-12-01",
+          "hours": "40",
+          "base_loaded_hourly_rate": "100.00",
+          "stress_loaded_hourly_rate": "100.00"
+        },
+        "service": [
+          {
+            "start_date": "2026-12-01",
+            "active_units": 100,
+            "applicable_months": 12,
+            "base_monthly_cost_per_unit": "20.00",
+            "stress_monthly_cost_per_unit": "21.00"
+          }
+        ],
+        "account_id": "SYN-ACCOUNT-001",
+        "bundle_id": "SYN-100-UNITS-12-MONTH-SERVICE"
+      },
+      "expected": {
+        "currency": "USD",
+        "approval_outcome": "director_approval_required",
+        "release_allowed": false,
+        "review_required": false,
+        "missing_inputs": [],
+        "messages": [
+          "Sales director approval required for this quote version before release."
+        ],
+        "base_costs": {
+          "hardware": "60000.00",
+          "freight": "2000.00",
+          "installation": "4000.00",
+          "service": "24000.00",
+          "total": "90000.00"
+        },
+        "stress_costs": {
+          "hardware": "66000.00",
+          "freight": "2400.00",
+          "installation": "4000.00",
+          "service": "25200.00",
+          "total": "97600.00"
+        },
+        "stress_reserve": "7600.00",
+        "offer_revenue": "136000.00",
+        "discount_percent": "15.00",
+        "stress_margin_percent": "28.24",
+        "economic_floor": "130133.34"
+      },
+      "calculation": "(160000 - 136000) / 160000 * 100 = 15.00%. (136000 - 97600) / 136000 * 100 = 28.235294...%, displayed 28.24%. Floor remains 130133.34 USD; the offer meets the 25% stress margin floor but exceeds representative discount authority."
+    },
+    {
+      "id": "cost_shock",
+      "name": "COST SHOCK",
+      "purpose": "Reappraise an approved open quote against a new synthetic cost feed; preserve its original price, version, costs, and approval history.",
+      "inputs": {
+        "quote_id": "SYN-REFERENCE-001",
+        "quote_version": 1,
+        "currency": "USD",
+        "list_revenue": "160000.00",
+        "offer_revenue": "136000.00",
+        "delivery_date": "2026-12-01",
+        "quote_expires_on": "2026-11-15",
+        "payment_terms": "standard_upfront",
+        "cost_feed_version": "synthetic-costs-v2",
+        "cost_as_of_date": "2026-10-26",
+        "stress_scenario": "supplier_shock_v2",
+        "hardware": [
+          {
+            "procurement_date": "2026-11-01",
+            "units": 100,
+            "base_unit_cost": "600.00",
+            "stress_unit_cost": "740.00"
+          }
+        ],
+        "freight": [
+          {
+            "shipment_date": "2026-11-28",
+            "shipments": 2,
+            "base_cost_per_shipment": "1000.00",
+            "stress_cost_per_shipment": "1200.00"
+          }
+        ],
+        "installation": {
+          "installation_date": "2026-12-01",
+          "hours": "40",
+          "base_loaded_hourly_rate": "100.00",
+          "stress_loaded_hourly_rate": "100.00"
+        },
+        "service": [
+          {
+            "start_date": "2026-12-01",
+            "active_units": 100,
+            "applicable_months": 12,
+            "base_monthly_cost_per_unit": "20.00",
+            "stress_monthly_cost_per_unit": "21.00"
+          }
+        ],
+        "cost_update": {
+          "reason": "new_cost_feed",
+          "previous_quote": {
+            "quote_id": "SYN-REFERENCE-001",
+            "quote_version": 1,
+            "currency": "USD",
+            "list_revenue": "160000.00",
+            "offer_revenue": "136000.00",
+            "cost_feed_version": "synthetic-costs-v1",
+            "stress_cost": "97600.00",
+            "economic_floor": "130133.34",
+            "approval": {
+              "role": "sales_director",
+              "quote_id": "SYN-REFERENCE-001",
+              "quote_version": 1,
+              "approved_offer_revenue": "136000.00",
+              "expires_on": "2026-11-15"
+            }
+          }
+        },
+        "account_id": "SYN-ACCOUNT-001",
+        "bundle_id": "SYN-100-UNITS-12-MONTH-SERVICE"
+      },
+      "expected": {
+        "currency": "USD",
+        "approval_outcome": "below_margin_floor",
+        "release_allowed": false,
+        "review_required": true,
+        "missing_inputs": [],
+        "messages": [
+          "Offer is below the stress-margin floor; finance exceptions are outside the MVP.",
+          "New cost feed requires review; preserve the original quote and approval history."
+        ],
+        "base_costs": {
+          "hardware": "60000.00",
+          "freight": "2000.00",
+          "installation": "4000.00",
+          "service": "24000.00",
+          "total": "90000.00"
+        },
+        "stress_costs": {
+          "hardware": "74000.00",
+          "freight": "2400.00",
+          "installation": "4000.00",
+          "service": "25200.00",
+          "total": "105600.00"
+        },
+        "stress_reserve": "15600.00",
+        "offer_revenue": "136000.00",
+        "discount_percent": "15.00",
+        "stress_margin_percent": "22.35",
+        "economic_floor": "140800.00",
+        "preserved_quote": {
+          "quote_id": "SYN-REFERENCE-001",
+          "quote_version": 1,
+          "currency": "USD",
+          "list_revenue": "160000.00",
+          "offer_revenue": "136000.00",
+          "cost_feed_version": "synthetic-costs-v1",
+          "stress_cost": "97600.00",
+          "economic_floor": "130133.34",
+          "approval": {
+            "role": "sales_director",
+            "quote_id": "SYN-REFERENCE-001",
+            "quote_version": 1,
+            "approved_offer_revenue": "136000.00",
+            "expires_on": "2026-11-15"
+          }
+        }
+      },
+      "calculation": "New stress hardware = 100 * 740 = 74000 USD; other stress costs remain 2400 + 4000 + 25200 USD. New total = 105600 USD. Existing quote stays 136000 USD, version 1. (136000 - 105600) / 136000 * 100 = 22.352941...%, displayed 22.35%. ceil_to_cent(105600 / 0.75) = 140800.00 USD. Below floor: block release and require review; retain the prior 97600 USD appraisal and approval as history."
+    },
+    {
+      "id": "infeasible_deal",
+      "name": "INFEASIBLE DEAL",
+      "purpose": "Verify that even list revenue cannot satisfy the stress margin floor; never clamp the economic floor to list.",
+      "inputs": {
+        "quote_id": "SYN-REFERENCE-001",
+        "quote_version": 1,
+        "currency": "USD",
+        "list_revenue": "160000.00",
+        "offer_revenue": "160000.00",
+        "delivery_date": "2026-12-01",
+        "quote_expires_on": "2026-11-15",
+        "payment_terms": "standard_upfront",
+        "cost_feed_version": "synthetic-costs-v1",
+        "cost_as_of_date": "2026-10-25",
+        "stress_scenario": "severe_supplier_stress_v1",
+        "hardware": [
+          {
+            "procurement_date": "2026-11-01",
+            "units": 100,
+            "base_unit_cost": "600.00",
+            "stress_unit_cost": "984.00"
+          }
+        ],
+        "freight": [
+          {
+            "shipment_date": "2026-11-28",
+            "shipments": 2,
+            "base_cost_per_shipment": "1000.00",
+            "stress_cost_per_shipment": "1200.00"
+          }
+        ],
+        "installation": {
+          "installation_date": "2026-12-01",
+          "hours": "40",
+          "base_loaded_hourly_rate": "100.00",
+          "stress_loaded_hourly_rate": "100.00"
+        },
+        "service": [
+          {
+            "start_date": "2026-12-01",
+            "active_units": 100,
+            "applicable_months": 12,
+            "base_monthly_cost_per_unit": "20.00",
+            "stress_monthly_cost_per_unit": "21.00"
+          }
+        ],
+        "account_id": "SYN-ACCOUNT-001",
+        "bundle_id": "SYN-100-UNITS-12-MONTH-SERVICE"
+      },
+      "expected": {
+        "currency": "USD",
+        "approval_outcome": "infeasible_under_current_terms",
+        "release_allowed": false,
+        "review_required": false,
+        "missing_inputs": [],
+        "messages": [
+          "infeasible under current terms"
+        ],
+        "base_costs": {
+          "hardware": "60000.00",
+          "freight": "2000.00",
+          "installation": "4000.00",
+          "service": "24000.00",
+          "total": "90000.00"
+        },
+        "stress_costs": {
+          "hardware": "98400.00",
+          "freight": "2400.00",
+          "installation": "4000.00",
+          "service": "25200.00",
+          "total": "130000.00"
+        },
+        "stress_reserve": "40000.00",
+        "offer_revenue": "160000.00",
+        "discount_percent": "0.00",
+        "stress_margin_percent": "18.75",
+        "economic_floor": "173333.34"
+      },
+      "calculation": "Stress hardware = 100 * 984 = 98400 USD; 98400 + 2400 + 4000 + 25200 = 130000 USD stress cost. ceil_to_cent(130000 / 0.75) = 173333.34 USD, above 160000.00 USD list revenue. At list, margin = (160000 - 130000) / 160000 * 100 = 18.75%. Infeasible under current terms."
+    },
+    {
+      "id": "recurring_service",
+      "name": "RECURRING SERVICE",
+      "purpose": "Verify unit-month service arithmetic and ensure service occurs exactly once in each total.",
+      "inputs": {
+        "quote_id": "SYN-REFERENCE-001",
+        "quote_version": 1,
+        "currency": "USD",
+        "list_revenue": "160000.00",
+        "offer_revenue": "144000.00",
+        "delivery_date": "2026-12-01",
+        "quote_expires_on": "2026-11-15",
+        "payment_terms": "standard_upfront",
+        "cost_feed_version": "synthetic-costs-v1",
+        "cost_as_of_date": "2026-10-25",
+        "stress_scenario": "joint_cost_stress_v1",
+        "hardware": [
+          {
+            "procurement_date": "2026-11-01",
+            "units": 100,
+            "base_unit_cost": "600.00",
+            "stress_unit_cost": "660.00"
+          }
+        ],
+        "freight": [
+          {
+            "shipment_date": "2026-11-28",
+            "shipments": 2,
+            "base_cost_per_shipment": "1000.00",
+            "stress_cost_per_shipment": "1200.00"
+          }
+        ],
+        "installation": {
+          "installation_date": "2026-12-01",
+          "hours": "40",
+          "base_loaded_hourly_rate": "100.00",
+          "stress_loaded_hourly_rate": "100.00"
+        },
+        "service": [
+          {
+            "start_date": "2026-12-01",
+            "active_units": 100,
+            "applicable_months": 12,
+            "base_monthly_cost_per_unit": "20.00",
+            "stress_monthly_cost_per_unit": "21.00"
+          }
+        ],
+        "account_id": "SYN-ACCOUNT-001",
+        "bundle_id": "SYN-100-UNITS-12-MONTH-SERVICE"
+      },
+      "expected": {
+        "currency": "USD",
+        "approval_outcome": "representative_authority",
+        "release_allowed": true,
+        "review_required": false,
+        "missing_inputs": [],
+        "messages": [],
+        "base_costs": {
+          "hardware": "60000.00",
+          "freight": "2000.00",
+          "installation": "4000.00",
+          "service": "24000.00",
+          "total": "90000.00"
+        },
+        "stress_costs": {
+          "hardware": "66000.00",
+          "freight": "2400.00",
+          "installation": "4000.00",
+          "service": "25200.00",
+          "total": "97600.00"
+        },
+        "stress_reserve": "7600.00",
+        "offer_revenue": "144000.00",
+        "discount_percent": "10.00",
+        "stress_margin_percent": "32.22",
+        "economic_floor": "130133.34"
+      },
+      "calculation": "100 active units * 20.00 USD/unit/month * 12 whole months = 24000.00 USD base service. Stress service = 100 * 21.00 * 12 = 25200.00 USD. Base total = 60000 + 2000 + 4000 + 24000 = 90000 USD; stress total = 97600 USD. Add each service category once; do not add the 7600 USD reserve to an already stressed total. Standard 144000 USD offer has 32.22% stress margin and 130133.34 USD floor."
+    },
+    {
+      "id": "freight_units",
+      "name": "FREIGHT UNITS",
+      "purpose": "Verify shipment quantities are independent of hardware quantities.",
+      "inputs": {
+        "quote_id": "SYN-REFERENCE-001",
+        "quote_version": 1,
+        "currency": "USD",
+        "list_revenue": "160000.00",
+        "offer_revenue": "144000.00",
+        "delivery_date": "2026-12-01",
+        "quote_expires_on": "2026-11-15",
+        "payment_terms": "standard_upfront",
+        "cost_feed_version": "synthetic-costs-v1",
+        "cost_as_of_date": "2026-10-25",
+        "stress_scenario": "joint_cost_stress_v1",
+        "hardware": [
+          {
+            "procurement_date": "2026-11-01",
+            "units": 100,
+            "base_unit_cost": "600.00",
+            "stress_unit_cost": "660.00"
+          }
+        ],
+        "freight": [
+          {
+            "shipment_date": "2026-11-28",
+            "shipments": 2,
+            "base_cost_per_shipment": "1000.00",
+            "stress_cost_per_shipment": "1200.00"
+          }
+        ],
+        "installation": {
+          "installation_date": "2026-12-01",
+          "hours": "40",
+          "base_loaded_hourly_rate": "100.00",
+          "stress_loaded_hourly_rate": "100.00"
+        },
+        "service": [
+          {
+            "start_date": "2026-12-01",
+            "active_units": 100,
+            "applicable_months": 12,
+            "base_monthly_cost_per_unit": "20.00",
+            "stress_monthly_cost_per_unit": "21.00"
+          }
+        ],
+        "account_id": "SYN-ACCOUNT-001",
+        "bundle_id": "SYN-100-UNITS-12-MONTH-SERVICE"
+      },
+      "expected": {
+        "currency": "USD",
+        "approval_outcome": "representative_authority",
+        "release_allowed": true,
+        "review_required": false,
+        "missing_inputs": [],
+        "messages": [],
+        "base_costs": {
+          "hardware": "60000.00",
+          "freight": "2000.00",
+          "installation": "4000.00",
+          "service": "24000.00",
+          "total": "90000.00"
+        },
+        "stress_costs": {
+          "hardware": "66000.00",
+          "freight": "2400.00",
+          "installation": "4000.00",
+          "service": "25200.00",
+          "total": "97600.00"
+        },
+        "stress_reserve": "7600.00",
+        "offer_revenue": "144000.00",
+        "discount_percent": "10.00",
+        "stress_margin_percent": "32.22",
+        "economic_floor": "130133.34"
+      },
+      "calculation": "2 shipments * 1000.00 USD/shipment = 2000.00 USD base freight; stress freight = 2 * 1200.00 = 2400.00 USD. The separate hardware quantity is 100 units, not 100 shipments. Base total remains 90000.00 USD, stress total 97600.00 USD, standard offer margin 32.22%, floor 130133.34 USD."
+    },
+    {
+      "id": "missing_delivery_date",
+      "name": "MISSING DELIVERY DATE",
+      "purpose": "Require a delivery date even when all cost rates and procurement dates are supplied.",
+      "inputs": {
+        "quote_id": "SYN-REFERENCE-001",
+        "quote_version": 1,
+        "currency": "USD",
+        "list_revenue": "160000.00",
+        "offer_revenue": "144000.00",
+        "delivery_date": null,
+        "quote_expires_on": "2026-11-15",
+        "payment_terms": "standard_upfront",
+        "cost_feed_version": "synthetic-costs-v1",
+        "cost_as_of_date": "2026-10-25",
+        "stress_scenario": "joint_cost_stress_v1",
+        "hardware": [
+          {
+            "procurement_date": "2026-11-01",
+            "units": 100,
+            "base_unit_cost": "600.00",
+            "stress_unit_cost": "660.00"
+          }
+        ],
+        "freight": [
+          {
+            "shipment_date": "2026-11-28",
+            "shipments": 2,
+            "base_cost_per_shipment": "1000.00",
+            "stress_cost_per_shipment": "1200.00"
+          }
+        ],
+        "installation": {
+          "installation_date": "2026-12-01",
+          "hours": "40",
+          "base_loaded_hourly_rate": "100.00",
+          "stress_loaded_hourly_rate": "100.00"
+        },
+        "service": [
+          {
+            "start_date": "2026-12-01",
+            "active_units": 100,
+            "applicable_months": 12,
+            "base_monthly_cost_per_unit": "20.00",
+            "stress_monthly_cost_per_unit": "21.00"
+          }
+        ],
+        "account_id": "SYN-ACCOUNT-001",
+        "bundle_id": "SYN-100-UNITS-12-MONTH-SERVICE"
+      },
+      "expected": {
+        "currency": "USD",
+        "approval_outcome": "missing_critical_input",
+        "release_allowed": false,
+        "review_required": false,
+        "missing_inputs": [
+          "delivery_date"
+        ],
+        "messages": [
+          "Missing critical input: delivery_date."
+        ]
+      },
+      "calculation": "delivery_date is null. Return missing_critical_input with delivery_date listed, no calculated numeric quote outputs, and release_allowed false. Do not infer delivery from procurement, shipment, installation, or service dates."
+    },
+    {
+      "id": "unsupported_currency",
+      "name": "UNSUPPORTED CURRENCY",
+      "purpose": "Reject EUR explicitly before pricing; never relabel it as USD or invent an FX rate.",
+      "inputs": {
+        "quote_id": "SYN-REFERENCE-001",
+        "quote_version": 1,
+        "currency": "EUR",
+        "list_revenue": "160000.00",
+        "offer_revenue": "144000.00",
+        "delivery_date": "2026-12-01",
+        "quote_expires_on": "2026-11-15",
+        "payment_terms": "standard_upfront",
+        "cost_feed_version": "synthetic-costs-v1",
+        "cost_as_of_date": "2026-10-25",
+        "stress_scenario": "joint_cost_stress_v1",
+        "hardware": [
+          {
+            "procurement_date": "2026-11-01",
+            "units": 100,
+            "base_unit_cost": "600.00",
+            "stress_unit_cost": "660.00"
+          }
+        ],
+        "freight": [
+          {
+            "shipment_date": "2026-11-28",
+            "shipments": 2,
+            "base_cost_per_shipment": "1000.00",
+            "stress_cost_per_shipment": "1200.00"
+          }
+        ],
+        "installation": {
+          "installation_date": "2026-12-01",
+          "hours": "40",
+          "base_loaded_hourly_rate": "100.00",
+          "stress_loaded_hourly_rate": "100.00"
+        },
+        "service": [
+          {
+            "start_date": "2026-12-01",
+            "active_units": 100,
+            "applicable_months": 12,
+            "base_monthly_cost_per_unit": "20.00",
+            "stress_monthly_cost_per_unit": "21.00"
+          }
+        ],
+        "account_id": "SYN-ACCOUNT-001",
+        "bundle_id": "SYN-100-UNITS-12-MONTH-SERVICE"
+      },
+      "expected": {
+        "currency": "EUR",
+        "approval_outcome": "unsupported_currency",
+        "release_allowed": false,
+        "review_required": false,
+        "missing_inputs": [],
+        "messages": [
+          "Unsupported currency: EUR; USD only. No FX conversion."
+        ]
+      },
+      "calculation": "inputs.currency is EUR, so every submitted monetary input is denominated in EUR. USD-only policy returns unsupported_currency and release_allowed false with no numeric quote outputs or exchange-rate conversion."
+    }
+  ]
+}

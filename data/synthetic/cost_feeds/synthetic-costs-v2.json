@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "feed_version": "synthetic-costs-v2",
+  "previous_feed_version": "synthetic-costs-v1",
+  "as_of_date": "2026-10-26",
+  "stress_scenario": "supplier_shock_v2",
+  "description": "Synthetic supplier cost increase. A supplier allocation notice raises the CR-200 stress rate for procurement on or after 2026-10-26 to USD 740.00/unit; base rates and other categories are unchanged.",
+  "rates": {
+    "hardware": [
+      {"sku": "CR-200", "effective_from": "2026-10-01", "base": "600.00", "stress": "660.00",
+       "unit": "USD/unit", "source": "Synthetic supplier price list SPL-2026-10"},
+      {"sku": "CR-200", "effective_from": "2026-10-26", "base": "600.00", "stress": "740.00",
+       "unit": "USD/unit", "source": "Synthetic supplier allocation notice SN-2026-10-26"}
+    ],
+    "freight": [
+      {"lane": "RNO-CMH", "effective_from": "2026-10-01", "base": "1000.00", "stress": "1200.00",
+       "unit": "USD/shipment", "source": "Synthetic carrier rate card RC-2026-Q4"}
+    ],
+    "installation": [
+      {"role": "field_technician", "effective_from": "2026-01-01", "base": "100.00", "stress": "100.00",
+       "unit": "USD/hour", "source": "Synthetic loaded labor rate LR-2026"}
+    ],
+    "service": [
+      {"plan": "managed_edge_24x7", "effective_from": "2026-01-01", "base": "20.00", "stress": "21.00",
+       "unit": "USD/active unit/month", "source": "Synthetic service cost model SCM-2026 (explicit base/high assumption)"}
+    ]
+  }
+}
