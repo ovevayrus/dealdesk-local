@@ -1,12 +1,26 @@
 import type { Economics } from "@dealdesk/contracts";
 
+// Pricing-service strings reach the browser as markup, so escape every interpolation.
+function esc(value: string | number): string {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function renderEconomicsFragment(
   economics: Economics,
   quoteId: string,
-  version: number
+  version: number,
+  scenario: "base" | "shock" = "base"
 ): string {
-  const isShock = economics.stressMargin === "22.35";
-  const isBlock = economics.warnings.some((w) => w.severity === "block");
+  const isShock = scenario === "shock";
+  // Red on an explicit block warning or on a floor breach, so a low margin
+  // cannot render green just because the service emitted no warning.
+  const breachesFloor = Number(economics.stressMargin) < Number(economics.marginFloor);
+  const isBlock = economics.warnings.some((w) => w.severity === "block") || breachesFloor;
 
   const warningsHtml =
     economics.warnings.length > 0
@@ -14,8 +28,8 @@ export function renderEconomicsFragment(
           ${economics.warnings
             .map(
               (w) => `
-            <div class="warning-box ${w.severity}">
-              <strong>[${w.severity.toUpperCase()}] ${w.code}:</strong> ${w.message}
+            <div class="warning-box ${esc(w.severity)}">
+              <strong>[${esc(w.severity.toUpperCase())}] ${esc(w.code)}:</strong> ${esc(w.message)}
             </div>`
             )
             .join("")}
@@ -26,15 +40,15 @@ export function renderEconomicsFragment(
     .map(
       (c) => `
       <tr>
-        <td>${c.label}</td>
-        <td class="numeric">$${c.expected}</td>
-        <td class="numeric">$${c.stress}</td>
+        <td>${esc(c.label)}</td>
+        <td class="numeric">$${esc(c.expected)}</td>
+        <td class="numeric">$${esc(c.stress)}</td>
       </tr>`
     )
     .join("");
 
   return `
-    <h2>Economics & Sensitivity (v${version})</h2>
+    <h2>Economics & Sensitivity (v${esc(version)})</h2>
 
     ${warningsHtml}
 
@@ -73,16 +87,16 @@ export function renderEconomicsFragment(
       <thead>
         <tr>
           <th>Cost Item</th>
-          <th class="numeric">Expected (${economics.currency})</th>
-          <th class="numeric">Stress (${economics.currency})</th>
+          <th class="numeric">Expected (${esc(economics.currency)})</th>
+          <th class="numeric">Stress (${esc(economics.currency)})</th>
         </tr>
       </thead>
       <tbody>
         ${costsRows}
         <tr style="font-weight: 600; border-top: 2px solid var(--border-color);">
           <td>Total Cost Basis</td>
-          <td class="numeric">$${economics.baseCostTotal}</td>
-          <td class="numeric">$${economics.stressCostTotal}</td>
+          <td class="numeric">$${esc(economics.baseCostTotal)}</td>
+          <td class="numeric">$${esc(economics.stressCostTotal)}</td>
         </tr>
       </tbody>
     </table>
@@ -91,35 +105,35 @@ export function renderEconomicsFragment(
       <tbody>
         <tr>
           <td>Gross Margin (Base Case)</td>
-          <td class="numeric"><strong>${economics.grossMargin}%</strong></td>
+          <td class="numeric"><strong>${esc(economics.grossMargin)}%</strong></td>
         </tr>
         <tr>
           <td>Stress Margin</td>
           <td class="numeric">
             <strong style="color: ${isBlock ? "var(--danger)" : "var(--success)"};">
-              ${economics.stressMargin}%
+              ${esc(economics.stressMargin)}%
             </strong>
           </td>
         </tr>
         <tr>
           <td>Policy Margin Floor</td>
-          <td class="numeric">${economics.marginFloor}%</td>
+          <td class="numeric">${esc(economics.marginFloor)}%</td>
         </tr>
         <tr>
           <td>Min Acceptable Price</td>
-          <td class="numeric">$${economics.minAcceptablePrice}</td>
+          <td class="numeric">$${esc(economics.minAcceptablePrice)}</td>
         </tr>
         <tr>
           <td>Recommended Price</td>
-          <td class="numeric">$${economics.recommendedPrice}</td>
+          <td class="numeric">$${esc(economics.recommendedPrice)}</td>
         </tr>
         <tr>
           <td>Feasible Range</td>
-          <td class="numeric">${economics.feasibleRange.low} – ${economics.feasibleRange.high}</td>
+          <td class="numeric">${esc(economics.feasibleRange.low)} – ${esc(economics.feasibleRange.high)}</td>
         </tr>
         <tr>
           <td>Data Feed Version</td>
-          <td class="numeric"><code>${economics.dataVersion}</code></td>
+          <td class="numeric"><code>${esc(economics.dataVersion)}</code></td>
         </tr>
       </tbody>
     </table>
