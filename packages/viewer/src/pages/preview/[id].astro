@@ -1,0 +1,143 @@
+---
+import "../../styles/app.css";
+import { randomUUID } from "node:crypto";
+import { getDb } from "../../lib/db.ts";
+import { getActor, checkAccountScope } from "../../lib/session.ts";
+import { buildCustomerDraft } from "../../lib/render-pack.ts";
+import type { QuoteVersion } from "@dealdesk/contracts";
+
+const { id } = Astro.params;
+const actor = getActor(Astro.request);
+
+const db = getDb();
+const stmt = db.prepare(`
+  SELECT quote_id, version, payload, created_at
+  FROM quote_versions
+  WHERE quote_id = ?
+  ORDER BY version DESC
+  LIMIT 1
+`);
+
+const row = stmt.get(id) as any;
+
+if (!row) {
+  return new Response(`Quote ${id} not found`, { status: 404 });
+}
+
+const quoteVersion: QuoteVersion = JSON.parse(row.payload);
+
+// Authorize account scope
+if (!checkAccountScope(actor, quoteVersion.request.accountId)) {
+  const runId = `r-${randomUUID()}`;
+  return new Response(
+    JSON.stringify({
+      runId,
+      error: {
+        code: "FORBIDDEN_ACCOUNT",
+        message: `Actor ${actor.userId} is not authorized for account ${quoteVersion.request.accountId}.`,
+      },
+    }),
+    { status: 403, headers: { "Content-Type": "application/json" } }
+  );
+}
+
+const customerDraft = buildCustomerDraft(quoteVersion);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Proposal Draft — {quoteVersion.request.dealId}</title>
+  </head>
+  <body style="background: #f8fafc; color: #0f172a; padding: 2rem;">
+    <div style="max-width: 800px; margin: 0 auto; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 2.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 1.5rem; margin-bottom: 2rem;">
+        <div>
+          <h1 style="font-size: 1.75rem; font-weight: 700;">Commercial Proposal</h1>
+          <p style="color: #64748b; font-size: 0.875rem; margin-top: 0.25rem;">
+            Prepared for: <strong>{quoteVersion.request.accountId}</strong> &bull; Deal Reference: {quoteVersion.request.dealId}
+          </p>
+        </div>
+        <div style="text-align: right;">
+          <span style="display: inline-block; padding: 0.25rem 0.6rem; background: #e0f2fe; color: #0369a1; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">
+            PROPOSAL DRAFT &bull; v{quoteVersion.version}
+          </span>
+          <p style="color: #64748b; font-size: 0.75rem; margin-top: 0.25rem;">
+            Valid through: {customerDraft.quoteExpiry}
+          </p>
+        </div>
+      </div>
+
+      <!-- Commercial Terms -->
+      <div style="margin-bottom: 2rem;">
+        <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Summary of Commercial Terms</h2>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+          <tbody>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td style="padding: 0.75rem 0; color: #64748b;">Total Contract Value</td>
+              <td style="padding: 0.75rem 0; text-align: right; font-weight: 700; font-size: 1.25rem; color: #0f172a;">
+                ${customerDraft.totalContractValue} {customerDraft.currency}
+              </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td style="padding: 0.75rem 0; color: #64748b;">Initial Upfront Commitment</td>
+              <td style="padding: 0.75rem 0; text-align: right; font-weight: 600;">
+                ${customerDraft.upfront} {customerDraft.currency}
+              </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td style="padding: 0.75rem 0; color: #64748b;">Recurring Support (12 months)</td>
+              <td style="padding: 0.75rem 0; text-align: right; font-weight: 600;">
+                ${customerDraft.recurring} {customerDraft.currency}
+              </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td style="padding: 0.75rem 0; color: #64748b;">Deployment Scope</td>
+              <td style="padding: 0.75rem 0; text-align: right;">
+                {customerDraft.scopeLocations} operational locations
+              </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td style="padding: 0.75rem 0; color: #64748b;">Service Term</td>
+              <td style="padding: 0.75rem 0; text-align: right;">
+                {customerDraft.termMonths} months
+              </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td style="padding: 0.75rem 0; color: #64748b;">Delivery Destination</td>
+              <td style="padding: 0.75rem 0; text-align: right;">
+                {customerDraft.destination}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Permitted Negotiation Explanation -->
+      <div style="background: #f8fafc; border-left: 4px solid #2563eb; padding: 1.25rem; border-radius: 4px; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <h3 style="font-size: 0.875rem; font-weight: 600; text-transform: uppercase; color: #475569;">
+            Engagement Scope & Options
+          </h3>
+          <span style="font-size: 0.7rem; background: #e2e8f0; color: #475569; padding: 0.15rem 0.4rem; border-radius: 3px;">
+            Source: template draft (human review required)
+          </span>
+        </div>
+        <p style="font-size: 0.95rem; line-height: 1.6; color: #334155;">
+          {customerDraft.explanation}
+        </p>
+      </div>
+
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #94a3b8;">
+        <div>Confidential proposal &bull; DealDesk Local</div>
+        <div>
+          <a href={`/quote/${quoteVersion.quoteId}`} style="color: #2563eb; text-decoration: none; font-weight: 500;">
+            &larr; Back to Internal Deal Pack
+          </a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
