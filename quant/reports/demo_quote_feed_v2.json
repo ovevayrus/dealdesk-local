@@ -1,0 +1,592 @@
+{
+  "deal_id": "D-1001",
+  "account_id": "ACC-NORTHWIND",
+  "bundle": "EDGE-100",
+  "quantity": 100,
+  "currency": "USD",
+  "actor_role": "rep",
+  "inputs": {
+    "price_book_version": "pb-2026-10-01",
+    "policy_version": "policy-v1",
+    "feed_version": "v2",
+    "feed_as_of": "2026-10-25",
+    "feed_hash": "sha256:6445aa8f50fb9e32",
+    "deal_hash": "sha256:bbdfb4c60f00cd79"
+  },
+  "schedule": {
+    "procurement": [
+      {
+        "month": "2026-11",
+        "units": 100
+      }
+    ],
+    "shipments": [
+      {
+        "month": "2026-11",
+        "units": 50
+      },
+      {
+        "month": "2026-12",
+        "units": 50
+      }
+    ],
+    "service": {
+      "start_month": "2026-12",
+      "term_months": 12
+    },
+    "quote_date": "2026-10-25",
+    "quote_expiry": "2026-11-24"
+  },
+  "ledger": {
+    "lines": [
+      {
+        "line_id": "hardware:2026-11",
+        "category": "hardware",
+        "label": "100 units procured",
+        "month": "2026-11",
+        "quantity": "100",
+        "unit": "USD/unit",
+        "unit_cost_base": "600.00",
+        "unit_cost_stress": "740.00",
+        "base": "60000.00",
+        "stress": "74000.00",
+        "series_id": "hardware_unit:EDGE-100",
+        "source": "supplier_notice:SUP-ALTA-2026-10-24 (component shortage; adjustment cap raised for Nov and Dec 2026 deliveries)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "freight:2026-11",
+        "category": "freight",
+        "label": "shipment 1 (50 units)",
+        "month": "2026-11",
+        "quantity": "1",
+        "unit": "USD/shipment",
+        "unit_cost_base": "1000.00",
+        "unit_cost_stress": "1200.00",
+        "base": "1000.00",
+        "stress": "1200.00",
+        "series_id": "freight_shipment:LANE-OAK-PHX",
+        "source": "carrier_contract:CARRIER-WEST-2026 (fuel surcharge cap +20%)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "freight:2026-12",
+        "category": "freight",
+        "label": "shipment 2 (50 units)",
+        "month": "2026-12",
+        "quantity": "1",
+        "unit": "USD/shipment",
+        "unit_cost_base": "1000.00",
+        "unit_cost_stress": "1200.00",
+        "base": "1000.00",
+        "stress": "1200.00",
+        "series_id": "freight_shipment:LANE-OAK-PHX",
+        "source": "carrier_contract:CARRIER-WEST-2026 (fuel surcharge cap +20%)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "installation",
+        "category": "installation",
+        "label": "5E+1 installation hours",
+        "month": "2026-11",
+        "quantity": "50.0",
+        "unit": "USD/hour",
+        "unit_cost_base": "80.00",
+        "unit_cost_stress": "80.00",
+        "base": "4000.00",
+        "stress": "4000.00",
+        "series_id": "install_hour:FIELD-TEAM",
+        "source": "delivery_staffing_plan:FY27 (loaded rate)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2026-12",
+        "category": "service",
+        "label": "service month 1",
+        "month": "2026-12",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2027-01",
+        "category": "service",
+        "label": "service month 2",
+        "month": "2027-01",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2027-02",
+        "category": "service",
+        "label": "service month 3",
+        "month": "2027-02",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2027-03",
+        "category": "service",
+        "label": "service month 4",
+        "month": "2027-03",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2027-04",
+        "category": "service",
+        "label": "service month 5",
+        "month": "2027-04",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2027-05",
+        "category": "service",
+        "label": "service month 6",
+        "month": "2027-05",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2027-06",
+        "category": "service",
+        "label": "service month 7",
+        "month": "2027-06",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2027-07",
+        "category": "service",
+        "label": "service month 8",
+        "month": "2027-07",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2027-08",
+        "category": "service",
+        "label": "service month 9",
+        "month": "2027-08",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2027-09",
+        "category": "service",
+        "label": "service month 10",
+        "month": "2027-09",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2027-10",
+        "category": "service",
+        "label": "service month 11",
+        "month": "2027-10",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      },
+      {
+        "line_id": "service:2027-11",
+        "category": "service",
+        "label": "service month 12",
+        "month": "2027-11",
+        "quantity": "100",
+        "unit": "USD/unit/month",
+        "unit_cost_base": "20.00",
+        "unit_cost_stress": "21.00",
+        "base": "2000.00",
+        "stress": "2100.00",
+        "series_id": "service_unit_month:EDGE-100",
+        "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+        "feed_version": "v2"
+      }
+    ],
+    "totals": {
+      "hardware": {
+        "base": "60000.00",
+        "stress": "74000.00"
+      },
+      "freight": {
+        "base": "2000.00",
+        "stress": "2400.00"
+      },
+      "installation": {
+        "base": "4000.00",
+        "stress": "4000.00"
+      },
+      "service": {
+        "base": "24000.00",
+        "stress": "25200.00"
+      }
+    },
+    "base_cost": "90000.00",
+    "stress_cost": "105600.00",
+    "reserve": "15600.00",
+    "stress_scenario": "joint: every line at its stress value"
+  },
+  "list_revenue": {
+    "hardware": "100000.00",
+    "installation": "6000.00",
+    "service": "54000.00",
+    "upfront": "106000.00",
+    "recurring": "54000.00",
+    "total": "160000.00"
+  },
+  "floors": {
+    "min_gross_margin_pct": "25.00",
+    "margin_basis": "stress",
+    "economic_floor": "140800.00",
+    "authorization": {
+      "rep": {
+        "max_discount_pct": "10.00",
+        "authorization_floor": "144000.00",
+        "lowest_authorized_offer": "144000.00",
+        "feasible": true,
+        "range": [
+          "144000.00",
+          "160000.00"
+        ]
+      },
+      "director": {
+        "max_discount_pct": "20.00",
+        "authorization_floor": "128000.00",
+        "lowest_authorized_offer": "140800.00",
+        "feasible": true,
+        "range": [
+          "140800.00",
+          "160000.00"
+        ]
+      }
+    }
+  },
+  "feasibility": {
+    "status": "feasible",
+    "reason": null
+  },
+  "packages": [
+    {
+      "package": "standard",
+      "description": "Standard scope and terms at the lowest price within rep authority.",
+      "price": "144000.00",
+      "list_revenue": "160000.00",
+      "discount_pct": "10.00",
+      "upfront": "95400.00",
+      "recurring_total": "48600.00",
+      "recurring_monthly": "4050.00",
+      "base_margin_pct": "37.50",
+      "stress_margin_pct": "26.67",
+      "stress_margin": "0.266667",
+      "base_cost": "90000.00",
+      "stress_cost": "105600.00",
+      "policy_status": "compliant",
+      "required_approval": "rep",
+      "within_actor_authority": true,
+      "reasons": []
+    },
+    {
+      "package": "negotiated",
+      "description": "Requested concession as proposed by the rep.",
+      "price": "136000.00",
+      "list_revenue": "160000.00",
+      "discount_pct": "15.00",
+      "upfront": "90100.00",
+      "recurring_total": "45900.00",
+      "recurring_monthly": "3825.00",
+      "base_margin_pct": "33.82",
+      "stress_margin_pct": "22.35",
+      "stress_margin": "0.223529",
+      "base_cost": "90000.00",
+      "stress_cost": "105600.00",
+      "policy_status": "blocked_below_floor",
+      "required_approval": "finance_exception",
+      "within_actor_authority": false,
+      "reasons": [
+        "price is below the economic floor 140800.00 (25.00% minimum stress margin)"
+      ]
+    },
+    {
+      "package": "alternative",
+      "description": "Phased delivery: commit 50 units now with the same service term; the remaining 50 units become a separate option priced at the time. Costs recomputed for the reduced scope.",
+      "price": "72000.00",
+      "list_revenue": "80000.00",
+      "discount_pct": "10.00",
+      "upfront": "47700.00",
+      "recurring_total": "24300.00",
+      "recurring_monthly": "2025.00",
+      "base_margin_pct": "37.50",
+      "stress_margin_pct": "26.67",
+      "stress_margin": "0.266667",
+      "base_cost": "45000.00",
+      "stress_cost": "52800.00",
+      "policy_status": "compliant",
+      "required_approval": "rep",
+      "within_actor_authority": true,
+      "reasons": [],
+      "quantity": 50,
+      "economic_floor": "70400.00",
+      "ledger_totals": {
+        "hardware": {
+          "base": "30000.00",
+          "stress": "37000.00"
+        },
+        "freight": {
+          "base": "1000.00",
+          "stress": "1200.00"
+        },
+        "installation": {
+          "base": "2000.00",
+          "stress": "2000.00"
+        },
+        "service": {
+          "base": "12000.00",
+          "stress": "12600.00"
+        }
+      }
+    }
+  ],
+  "sensitivity": {
+    "price": "136000.00",
+    "min_gross_margin_pct": "25.00",
+    "grid": [
+      {
+        "freight_change_pct": 0,
+        "cells": [
+          {
+            "hardware_change_pct": -10,
+            "stress_cost": "98200.00",
+            "stress_margin_pct": "27.79",
+            "meets_policy": true
+          },
+          {
+            "hardware_change_pct": -5,
+            "stress_cost": "101900.00",
+            "stress_margin_pct": "25.07",
+            "meets_policy": true
+          },
+          {
+            "hardware_change_pct": 0,
+            "stress_cost": "105600.00",
+            "stress_margin_pct": "22.35",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 5,
+            "stress_cost": "109300.00",
+            "stress_margin_pct": "19.63",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 10,
+            "stress_cost": "113000.00",
+            "stress_margin_pct": "16.91",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 15,
+            "stress_cost": "116700.00",
+            "stress_margin_pct": "14.19",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 20,
+            "stress_cost": "120400.00",
+            "stress_margin_pct": "11.47",
+            "meets_policy": false
+          }
+        ]
+      },
+      {
+        "freight_change_pct": 10,
+        "cells": [
+          {
+            "hardware_change_pct": -10,
+            "stress_cost": "98440.00",
+            "stress_margin_pct": "27.62",
+            "meets_policy": true
+          },
+          {
+            "hardware_change_pct": -5,
+            "stress_cost": "102140.00",
+            "stress_margin_pct": "24.90",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 0,
+            "stress_cost": "105840.00",
+            "stress_margin_pct": "22.18",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 5,
+            "stress_cost": "109540.00",
+            "stress_margin_pct": "19.46",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 10,
+            "stress_cost": "113240.00",
+            "stress_margin_pct": "16.74",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 15,
+            "stress_cost": "116940.00",
+            "stress_margin_pct": "14.01",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 20,
+            "stress_cost": "120640.00",
+            "stress_margin_pct": "11.29",
+            "meets_policy": false
+          }
+        ]
+      },
+      {
+        "freight_change_pct": 20,
+        "cells": [
+          {
+            "hardware_change_pct": -10,
+            "stress_cost": "98680.00",
+            "stress_margin_pct": "27.44",
+            "meets_policy": true
+          },
+          {
+            "hardware_change_pct": -5,
+            "stress_cost": "102380.00",
+            "stress_margin_pct": "24.72",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 0,
+            "stress_cost": "106080.00",
+            "stress_margin_pct": "22.00",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 5,
+            "stress_cost": "109780.00",
+            "stress_margin_pct": "19.28",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 10,
+            "stress_cost": "113480.00",
+            "stress_margin_pct": "16.56",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 15,
+            "stress_cost": "117180.00",
+            "stress_margin_pct": "13.84",
+            "meets_policy": false
+          },
+          {
+            "hardware_change_pct": 20,
+            "stress_cost": "120880.00",
+            "stress_margin_pct": "11.12",
+            "meets_policy": false
+          }
+        ]
+      }
+    ],
+    "breakeven_hardware_stress_per_unit": "704.00",
+    "breakeven_freight_stress_per_shipment": "-600.00"
+  },
+  "flags": [],
+  "status": "ready_for_review",
+  "assumptions": [
+    "All amounts in USD. Gross margin = (revenue - cost) / revenue, never markup.",
+    "Policy margin test uses the stress cost ledger (margin_basis = stress).",
+    "Hardware is costed at the procurement month, freight at each shipment month, service per active month.",
+    "Stress is one named joint scenario applied to every line at once; the reserve is not added a second time.",
+    "Discount is applied evenly across upfront and recurring list lines."
+  ],
+  "exclusions": [
+    "taxes",
+    "FX",
+    "financing",
+    "returns",
+    "working capital effects"
+  ],
+  "evidence_refs": []
+}

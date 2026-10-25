@@ -1,0 +1,49 @@
+{
+  "feed_id": "cost-feed",
+  "version": "v1",
+  "as_of": "2026-10-01",
+  "synthetic": true,
+  "currency": "USD",
+  "notes": "Dated cost inputs used by price_deal. Base is the expected cost. Stress is the named joint stress scenario 'supplier-cap-and-peak-freight': supplier price adjustment cap, peak season fuel surcharge cap, and high service labor assumption all at once.",
+  "series": {
+    "hardware_unit:EDGE-100": {
+      "unit": "USD/unit",
+      "source": "supplier_quote:SUP-ALTA-2026-09 (price valid Nov 2026 to Mar 2027, adjustment cap +10%)",
+      "months": {
+        "2026-11": {"base": "600.00", "stress": "660.00"},
+        "2026-12": {"base": "600.00", "stress": "660.00"},
+        "2027-01": {"base": "605.00", "stress": "665.50"},
+        "2027-02": {"base": "605.00", "stress": "665.50"},
+        "2027-03": {"base": "610.00", "stress": "671.00"}
+      }
+    },
+    "freight_shipment:LANE-OAK-PHX": {
+      "unit": "USD/shipment",
+      "source": "carrier_contract:CARRIER-WEST-2026 (fuel surcharge cap +20%)",
+      "months": {
+        "2026-11": {"base": "1000.00", "stress": "1200.00"},
+        "2026-12": {"base": "1000.00", "stress": "1200.00"},
+        "2027-01": {"base": "950.00", "stress": "1140.00"},
+        "2027-02": {"base": "950.00", "stress": "1140.00"},
+        "2027-03": {"base": "950.00", "stress": "1140.00"}
+      }
+    },
+    "install_hour:FIELD-TEAM": {
+      "unit": "USD/hour",
+      "source": "delivery_staffing_plan:FY27 (loaded rate)",
+      "flat": {"base": "80.00", "stress": "80.00"}
+    },
+    "service_unit_month:EDGE-100": {
+      "unit": "USD/unit/month",
+      "source": "support_cost_model:MS-2026Q3 (high case +5% labor)",
+      "flat": {"base": "20.00", "stress": "21.00"}
+    }
+  },
+  "capacity": {
+    "EDGE-100": {
+      "unit": "units procurable per month",
+      "source": "supplier_allocation:SUP-ALTA-2026-09",
+      "months": {"2026-11": 200, "2026-12": 200, "2027-01": 150, "2027-02": 150, "2027-03": 150}
+    }
+  }
+}

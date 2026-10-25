@@ -1,0 +1,19 @@
+{
+  "deal_id": "D-1001",
+  "account_id": "ACC-NORTHWIND",
+  "bundle": "EDGE-100",
+  "quantity": 100,
+  "currency": "USD",
+  "destination": "PHX",
+  "procurement": [{"month": "2026-11", "units": 100}],
+  "shipments": [
+    {"month": "2026-11", "units": 50},
+    {"month": "2026-12", "units": 50}
+  ],
+  "service": {"start_month": "2026-12", "term_months": 12},
+  "payment_terms": "net30",
+  "quote_date": "2026-10-25",
+  "quote_expiry": "2026-11-24",
+  "proposed_price": "136000.00",
+  "evidence_refs": []
+}

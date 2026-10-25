@@ -1,0 +1,24 @@
+{
+  "version": "pb-2026-10-01",
+  "synthetic": true,
+  "currency": "USD",
+  "bundles": {
+    "EDGE-100": {
+      "name": "Edge Node bundle: hardware, on-site installation, managed service",
+      "hardware_list_per_unit": "1000.00",
+      "installation_hours_per_unit": "0.5",
+      "installation_list_per_hour": "120.00",
+      "service_list_per_unit_month": "45.00",
+      "max_units_per_shipment": 50,
+      "cost_series": {
+        "hardware": "hardware_unit:EDGE-100",
+        "installation": "install_hour:FIELD-TEAM",
+        "service": "service_unit_month:EDGE-100"
+      }
+    }
+  },
+  "lanes": {
+    "PHX": "freight_shipment:LANE-OAK-PHX"
+  },
+  "approved_payment_terms": ["net30"]
+}

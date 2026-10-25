@@ -1,0 +1,1069 @@
+{
+  "synthetic": true,
+  "priced_with_feed": "v1",
+  "quotes": [
+    {
+      "quote_id": "Q-1001",
+      "version": 1,
+      "deal": {
+        "deal_id": "D-1001",
+        "account_id": "ACC-NORTHWIND",
+        "bundle": "EDGE-100",
+        "quantity": 100,
+        "currency": "USD",
+        "destination": "PHX",
+        "procurement": [
+          {
+            "month": "2026-11",
+            "units": 100
+          }
+        ],
+        "shipments": [
+          {
+            "month": "2026-11",
+            "units": 50
+          },
+          {
+            "month": "2026-12",
+            "units": 50
+          }
+        ],
+        "service": {
+          "start_month": "2026-12",
+          "term_months": 12
+        },
+        "payment_terms": "net30",
+        "quote_date": "2026-10-25",
+        "quote_expiry": "2026-11-24",
+        "evidence_refs": []
+      },
+      "price": "136000.00",
+      "feed_version": "v1",
+      "feed_hash": "sha256:81829848c9361e03",
+      "policy_version": "policy-v1",
+      "price_book_version": "pb-2026-10-01",
+      "calculated": {
+        "base_cost": "90000.00",
+        "stress_cost": "97600.00",
+        "economic_floor": "130133.34",
+        "list_revenue": "160000.00",
+        "discount_pct": "15.00",
+        "stress_margin_pct": "28.24",
+        "required_approval": "director",
+        "ledger_lines": [
+          {
+            "line_id": "hardware:2026-11",
+            "series_id": "hardware_unit:EDGE-100",
+            "month": "2026-11",
+            "quantity": "100",
+            "unit_cost_base": "600.00",
+            "unit_cost_stress": "660.00",
+            "base": "60000.00",
+            "stress": "66000.00"
+          },
+          {
+            "line_id": "freight:2026-11",
+            "series_id": "freight_shipment:LANE-OAK-PHX",
+            "month": "2026-11",
+            "quantity": "1",
+            "unit_cost_base": "1000.00",
+            "unit_cost_stress": "1200.00",
+            "base": "1000.00",
+            "stress": "1200.00"
+          },
+          {
+            "line_id": "freight:2026-12",
+            "series_id": "freight_shipment:LANE-OAK-PHX",
+            "month": "2026-12",
+            "quantity": "1",
+            "unit_cost_base": "1000.00",
+            "unit_cost_stress": "1200.00",
+            "base": "1000.00",
+            "stress": "1200.00"
+          },
+          {
+            "line_id": "installation",
+            "series_id": "install_hour:FIELD-TEAM",
+            "month": "2026-11",
+            "quantity": "50.0",
+            "unit_cost_base": "80.00",
+            "unit_cost_stress": "80.00",
+            "base": "4000.00",
+            "stress": "4000.00"
+          },
+          {
+            "line_id": "service:2026-12",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2026-12",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-01",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-01",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-02",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-02",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-03",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-03",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-04",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-04",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-05",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-05",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-06",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-06",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-07",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-07",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-08",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-08",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-09",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-09",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-10",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-10",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-11",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-11",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          }
+        ]
+      },
+      "quote_hash": "sha256:87ee71d03b843fe7",
+      "state": "sent",
+      "approval": {
+        "actor": "director:dana.lee",
+        "role": "director",
+        "exception": "discount 15.00%",
+        "approved_at": "2026-10-25T10:42:00-07:00",
+        "expires": "2026-11-24",
+        "quote_hash": "sha256:87ee71d03b843fe7",
+        "quote_version": 1
+      }
+    },
+    {
+      "quote_id": "Q-1002",
+      "version": 1,
+      "deal": {
+        "deal_id": "D-1002",
+        "account_id": "ACC-BLUEPEAK",
+        "bundle": "EDGE-100",
+        "quantity": 100,
+        "currency": "USD",
+        "destination": "PHX",
+        "procurement": [
+          {
+            "month": "2026-11",
+            "units": 100
+          }
+        ],
+        "shipments": [
+          {
+            "month": "2026-11",
+            "units": 50
+          },
+          {
+            "month": "2026-12",
+            "units": 50
+          }
+        ],
+        "service": {
+          "start_month": "2026-12",
+          "term_months": 12
+        },
+        "payment_terms": "net30",
+        "quote_date": "2026-10-25",
+        "quote_expiry": "2026-11-24",
+        "evidence_refs": []
+      },
+      "price": "144000.00",
+      "feed_version": "v1",
+      "feed_hash": "sha256:81829848c9361e03",
+      "policy_version": "policy-v1",
+      "price_book_version": "pb-2026-10-01",
+      "calculated": {
+        "base_cost": "90000.00",
+        "stress_cost": "97600.00",
+        "economic_floor": "130133.34",
+        "list_revenue": "160000.00",
+        "discount_pct": "10.00",
+        "stress_margin_pct": "32.22",
+        "required_approval": "rep",
+        "ledger_lines": [
+          {
+            "line_id": "hardware:2026-11",
+            "series_id": "hardware_unit:EDGE-100",
+            "month": "2026-11",
+            "quantity": "100",
+            "unit_cost_base": "600.00",
+            "unit_cost_stress": "660.00",
+            "base": "60000.00",
+            "stress": "66000.00"
+          },
+          {
+            "line_id": "freight:2026-11",
+            "series_id": "freight_shipment:LANE-OAK-PHX",
+            "month": "2026-11",
+            "quantity": "1",
+            "unit_cost_base": "1000.00",
+            "unit_cost_stress": "1200.00",
+            "base": "1000.00",
+            "stress": "1200.00"
+          },
+          {
+            "line_id": "freight:2026-12",
+            "series_id": "freight_shipment:LANE-OAK-PHX",
+            "month": "2026-12",
+            "quantity": "1",
+            "unit_cost_base": "1000.00",
+            "unit_cost_stress": "1200.00",
+            "base": "1000.00",
+            "stress": "1200.00"
+          },
+          {
+            "line_id": "installation",
+            "series_id": "install_hour:FIELD-TEAM",
+            "month": "2026-11",
+            "quantity": "50.0",
+            "unit_cost_base": "80.00",
+            "unit_cost_stress": "80.00",
+            "base": "4000.00",
+            "stress": "4000.00"
+          },
+          {
+            "line_id": "service:2026-12",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2026-12",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-01",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-01",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-02",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-02",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-03",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-03",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-04",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-04",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-05",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-05",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-06",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-06",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-07",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-07",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-08",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-08",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-09",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-09",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-10",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-10",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          },
+          {
+            "line_id": "service:2027-11",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-11",
+            "quantity": "100",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "2000.00",
+            "stress": "2100.00"
+          }
+        ]
+      },
+      "quote_hash": "sha256:84e859c292bceff9",
+      "state": "sent",
+      "approval": null
+    },
+    {
+      "quote_id": "Q-1003",
+      "version": 1,
+      "deal": {
+        "deal_id": "D-1003",
+        "account_id": "ACC-CEDAR",
+        "bundle": "EDGE-100",
+        "quantity": 50,
+        "currency": "USD",
+        "destination": "PHX",
+        "procurement": [
+          {
+            "month": "2026-12",
+            "units": 50
+          }
+        ],
+        "shipments": [
+          {
+            "month": "2026-12",
+            "units": 50
+          }
+        ],
+        "service": {
+          "start_month": "2027-01",
+          "term_months": 12
+        },
+        "payment_terms": "net30",
+        "quote_date": "2026-10-25",
+        "quote_expiry": "2026-11-24",
+        "evidence_refs": []
+      },
+      "price": "76000.00",
+      "feed_version": "v1",
+      "feed_hash": "sha256:81829848c9361e03",
+      "policy_version": "policy-v1",
+      "price_book_version": "pb-2026-10-01",
+      "calculated": {
+        "base_cost": "45000.00",
+        "stress_cost": "48800.00",
+        "economic_floor": "65066.67",
+        "list_revenue": "80000.00",
+        "discount_pct": "5.00",
+        "stress_margin_pct": "35.79",
+        "required_approval": "rep",
+        "ledger_lines": [
+          {
+            "line_id": "hardware:2026-12",
+            "series_id": "hardware_unit:EDGE-100",
+            "month": "2026-12",
+            "quantity": "50",
+            "unit_cost_base": "600.00",
+            "unit_cost_stress": "660.00",
+            "base": "30000.00",
+            "stress": "33000.00"
+          },
+          {
+            "line_id": "freight:2026-12",
+            "series_id": "freight_shipment:LANE-OAK-PHX",
+            "month": "2026-12",
+            "quantity": "1",
+            "unit_cost_base": "1000.00",
+            "unit_cost_stress": "1200.00",
+            "base": "1000.00",
+            "stress": "1200.00"
+          },
+          {
+            "line_id": "installation",
+            "series_id": "install_hour:FIELD-TEAM",
+            "month": "2026-12",
+            "quantity": "25.0",
+            "unit_cost_base": "80.00",
+            "unit_cost_stress": "80.00",
+            "base": "2000.00",
+            "stress": "2000.00"
+          },
+          {
+            "line_id": "service:2027-01",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-01",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          },
+          {
+            "line_id": "service:2027-02",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-02",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          },
+          {
+            "line_id": "service:2027-03",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-03",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          },
+          {
+            "line_id": "service:2027-04",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-04",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          },
+          {
+            "line_id": "service:2027-05",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-05",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          },
+          {
+            "line_id": "service:2027-06",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-06",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          },
+          {
+            "line_id": "service:2027-07",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-07",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          },
+          {
+            "line_id": "service:2027-08",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-08",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          },
+          {
+            "line_id": "service:2027-09",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-09",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          },
+          {
+            "line_id": "service:2027-10",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-10",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          },
+          {
+            "line_id": "service:2027-11",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-11",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          },
+          {
+            "line_id": "service:2027-12",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-12",
+            "quantity": "50",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1000.00",
+            "stress": "1050.00"
+          }
+        ]
+      },
+      "quote_hash": "sha256:b72b205dc6b134fb",
+      "state": "sent",
+      "approval": null
+    },
+    {
+      "quote_id": "Q-1004",
+      "version": 1,
+      "deal": {
+        "deal_id": "D-1004",
+        "account_id": "ACC-BLUEPEAK",
+        "bundle": "EDGE-100",
+        "quantity": 40,
+        "currency": "USD",
+        "destination": "PHX",
+        "procurement": [
+          {
+            "month": "2027-02",
+            "units": 40
+          }
+        ],
+        "shipments": [
+          {
+            "month": "2027-02",
+            "units": 40
+          }
+        ],
+        "service": {
+          "start_month": "2027-03",
+          "term_months": 12
+        },
+        "payment_terms": "net30",
+        "quote_date": "2026-10-25",
+        "quote_expiry": "2026-11-24",
+        "evidence_refs": []
+      },
+      "price": "60000.00",
+      "feed_version": "v1",
+      "feed_hash": "sha256:81829848c9361e03",
+      "policy_version": "policy-v1",
+      "price_book_version": "pb-2026-10-01",
+      "calculated": {
+        "base_cost": "36350.00",
+        "stress_cost": "39440.00",
+        "economic_floor": "52586.67",
+        "list_revenue": "64000.00",
+        "discount_pct": "6.25",
+        "stress_margin_pct": "34.27",
+        "required_approval": "rep",
+        "ledger_lines": [
+          {
+            "line_id": "hardware:2027-02",
+            "series_id": "hardware_unit:EDGE-100",
+            "month": "2027-02",
+            "quantity": "40",
+            "unit_cost_base": "605.00",
+            "unit_cost_stress": "665.50",
+            "base": "24200.00",
+            "stress": "26620.00"
+          },
+          {
+            "line_id": "freight:2027-02",
+            "series_id": "freight_shipment:LANE-OAK-PHX",
+            "month": "2027-02",
+            "quantity": "1",
+            "unit_cost_base": "950.00",
+            "unit_cost_stress": "1140.00",
+            "base": "950.00",
+            "stress": "1140.00"
+          },
+          {
+            "line_id": "installation",
+            "series_id": "install_hour:FIELD-TEAM",
+            "month": "2027-02",
+            "quantity": "20.0",
+            "unit_cost_base": "80.00",
+            "unit_cost_stress": "80.00",
+            "base": "1600.00",
+            "stress": "1600.00"
+          },
+          {
+            "line_id": "service:2027-03",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-03",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          },
+          {
+            "line_id": "service:2027-04",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-04",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          },
+          {
+            "line_id": "service:2027-05",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-05",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          },
+          {
+            "line_id": "service:2027-06",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-06",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          },
+          {
+            "line_id": "service:2027-07",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-07",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          },
+          {
+            "line_id": "service:2027-08",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-08",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          },
+          {
+            "line_id": "service:2027-09",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-09",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          },
+          {
+            "line_id": "service:2027-10",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-10",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          },
+          {
+            "line_id": "service:2027-11",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-11",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          },
+          {
+            "line_id": "service:2027-12",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-12",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          },
+          {
+            "line_id": "service:2028-01",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2028-01",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          },
+          {
+            "line_id": "service:2028-02",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2028-02",
+            "quantity": "40",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "800.00",
+            "stress": "840.00"
+          }
+        ]
+      },
+      "quote_hash": "sha256:fc7dc85c14b24335",
+      "state": "sent",
+      "approval": null
+    },
+    {
+      "quote_id": "Q-1005",
+      "version": 1,
+      "deal": {
+        "deal_id": "D-1005",
+        "account_id": "ACC-CEDAR",
+        "bundle": "EDGE-100",
+        "quantity": 80,
+        "currency": "USD",
+        "destination": "PHX",
+        "procurement": [
+          {
+            "month": "2026-12",
+            "units": 80
+          }
+        ],
+        "shipments": [
+          {
+            "month": "2026-12",
+            "units": 40
+          },
+          {
+            "month": "2026-12",
+            "units": 40
+          }
+        ],
+        "service": {
+          "start_month": "2027-01",
+          "term_months": 12
+        },
+        "payment_terms": "net30",
+        "quote_date": "2026-10-25",
+        "quote_expiry": "2026-11-24",
+        "evidence_refs": []
+      },
+      "price": "104960.00",
+      "feed_version": "v1",
+      "feed_hash": "sha256:81829848c9361e03",
+      "policy_version": "policy-v1",
+      "price_book_version": "pb-2026-10-01",
+      "calculated": {
+        "base_cost": "72400.00",
+        "stress_cost": "78560.00",
+        "economic_floor": "104746.67",
+        "list_revenue": "128000.00",
+        "discount_pct": "18.00",
+        "stress_margin_pct": "25.15",
+        "required_approval": "director",
+        "ledger_lines": [
+          {
+            "line_id": "hardware:2026-12",
+            "series_id": "hardware_unit:EDGE-100",
+            "month": "2026-12",
+            "quantity": "80",
+            "unit_cost_base": "600.00",
+            "unit_cost_stress": "660.00",
+            "base": "48000.00",
+            "stress": "52800.00"
+          },
+          {
+            "line_id": "freight:2026-12",
+            "series_id": "freight_shipment:LANE-OAK-PHX",
+            "month": "2026-12",
+            "quantity": "1",
+            "unit_cost_base": "1000.00",
+            "unit_cost_stress": "1200.00",
+            "base": "1000.00",
+            "stress": "1200.00"
+          },
+          {
+            "line_id": "freight:2026-12",
+            "series_id": "freight_shipment:LANE-OAK-PHX",
+            "month": "2026-12",
+            "quantity": "1",
+            "unit_cost_base": "1000.00",
+            "unit_cost_stress": "1200.00",
+            "base": "1000.00",
+            "stress": "1200.00"
+          },
+          {
+            "line_id": "installation",
+            "series_id": "install_hour:FIELD-TEAM",
+            "month": "2026-12",
+            "quantity": "40.0",
+            "unit_cost_base": "80.00",
+            "unit_cost_stress": "80.00",
+            "base": "3200.00",
+            "stress": "3200.00"
+          },
+          {
+            "line_id": "service:2027-01",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-01",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          },
+          {
+            "line_id": "service:2027-02",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-02",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          },
+          {
+            "line_id": "service:2027-03",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-03",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          },
+          {
+            "line_id": "service:2027-04",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-04",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          },
+          {
+            "line_id": "service:2027-05",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-05",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          },
+          {
+            "line_id": "service:2027-06",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-06",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          },
+          {
+            "line_id": "service:2027-07",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-07",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          },
+          {
+            "line_id": "service:2027-08",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-08",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          },
+          {
+            "line_id": "service:2027-09",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-09",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          },
+          {
+            "line_id": "service:2027-10",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-10",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          },
+          {
+            "line_id": "service:2027-11",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-11",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          },
+          {
+            "line_id": "service:2027-12",
+            "series_id": "service_unit_month:EDGE-100",
+            "month": "2027-12",
+            "quantity": "80",
+            "unit_cost_base": "20.00",
+            "unit_cost_stress": "21.00",
+            "base": "1600.00",
+            "stress": "1680.00"
+          }
+        ]
+      },
+      "quote_hash": "sha256:2634101423851240",
+      "state": "sent",
+      "approval": {
+        "actor": "director:dana.lee",
+        "role": "director",
+        "exception": "discount 18.00%",
+        "approved_at": "2026-10-20T15:10:00-07:00",
+        "expires": "2026-11-19",
+        "quote_hash": "sha256:2634101423851240",
+        "quote_version": 1
+      }
+    }
+  ]
+}
