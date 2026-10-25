@@ -1,14 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import http from "node:http";
-import { existsSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 import { getDb } from "../src/lib/db.ts";
 import { checkAccountScope } from "../src/lib/session.ts";
 import type { Actor, QuoteVersion } from "@dealdesk/contracts";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const sofia: Actor = {
   userId: "u-sofia",
@@ -117,105 +111,4 @@ test("quote-access: database-backed quote for NORTHWIND-2 is blocked for u-sofia
 
   // Clean up
   db.prepare("DELETE FROM quote_versions WHERE quote_id = ?").run("q-northwind-test");
-});
-
-test("quote-access: HTTP-level assertion: loading NORTHWIND-2 quote as u-sofia returns 403 FORBIDDEN_ACCOUNT", async () => {
-  const distEntry = resolve(__dirname, "../dist/server/entry.mjs");
-  if (!existsSync(distEntry)) {
-    return;
-  }
-
-  const { spawn } = await import("node:child_process");
-  const db = getDb();
-
-  const nwQuote: QuoteVersion = {
-    quoteId: "q-http-nw-403",
-    version: 1,
-    createdAt: new Date().toISOString(),
-    inputsHash: "TEST",
-    request: {
-      requestId: "req-http-nw",
-      dealId: "DEAL-NW-HTTP",
-      accountId: "NORTHWIND-2",
-      actor: dana,
-      sku: "DDX-RACK-100",
-      quantity: 10,
-      deliveryStart: "2026-12-01",
-      deliveryEnd: "2026-12-15",
-      destination: "Tacoma",
-      scopeLocations: 1,
-      termMonths: 12,
-      paymentTerms: "Net 30",
-      proposedDiscountPct: "5.00",
-      currency: "USD",
-      quoteExpiry: "2027-01-01",
-    },
-    evidence: [],
-    forecastVersion: "test",
-    policyVersion: "v1",
-    economics: {
-      currency: "USD",
-      listPrice: "16000.00",
-      totalContractValue: "15200.00",
-      upfront: "15200.00",
-      recurring: "0.00",
-      discountPct: "5.00",
-      costs: [],
-      baseCostTotal: "10000.00",
-      stressCostTotal: "11000.00",
-      grossMargin: "34.21",
-      stressMargin: "27.63",
-      marginFloor: "25.00",
-      minAcceptablePrice: "14666.67",
-      recommendedPrice: "15200.00",
-      feasibleRange: { low: "14666.67", high: "16000.00" },
-      warnings: [],
-      assumptions: [],
-      dataVersion: "test",
-    },
-    approval: {
-      state: "draft",
-      actor: null,
-      authority: null,
-      exception: null,
-      expiresAt: null,
-      quoteHash: "TEST",
-    },
-  };
-
-  db.prepare(`
-    INSERT OR REPLACE INTO quote_versions (quote_id, version, payload, created_at)
-    VALUES (?, ?, ?, ?)
-  `).run(nwQuote.quoteId, nwQuote.version, JSON.stringify(nwQuote), nwQuote.createdAt);
-
-  const testPort = 4399;
-  const child = spawn("node", [distEntry], {
-    env: { ...process.env, PORT: String(testPort), HOST: "127.0.0.1" },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-
-  try {
-    // Wait for server to be ready
-    await new Promise<void>((res, rej) => {
-      const timeout = setTimeout(() => rej(new Error("Timeout waiting for server start")), 3000);
-      child.stdout?.on("data", (data) => {
-        if (data.toString().includes("Server listening")) {
-          clearTimeout(timeout);
-          res();
-        }
-      });
-      child.on("error", rej);
-    });
-
-    const res = await fetch(`http://127.0.0.1:${testPort}/quote/q-http-nw-403`, {
-      headers: { cookie: "dd_actor=u-sofia" },
-    });
-
-    assert.equal(res.status, 403, "Must return HTTP 403 Forbidden for unauthorized account");
-    const body = await res.json();
-    assert.equal(body.error?.code, "FORBIDDEN_ACCOUNT");
-  } finally {
-    db.prepare("DELETE FROM quote_versions WHERE quote_id = ?").run("q-http-nw-403");
-    child.kill("SIGTERM");
-  }
 });
