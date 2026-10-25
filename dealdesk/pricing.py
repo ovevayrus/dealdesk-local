@@ -269,6 +269,22 @@ def _lowest_authorized_offer(list_revenue: Decimal, floor: Decimal, max_discount
     return lowest if lowest <= list_revenue else None
 
 
+RATE_FIELDS = frozenset(field for rule in RULES.values() for field in (rule.base_rate, rule.stress_rate))
+SCOPE_FIELDS = ("quote_id", "quote_version", "account_id", "bundle_id", "currency", "list_revenue", "offer_revenue",
+                "delivery_date", "quote_expires_on", "payment_terms")
+
+
+def quote_scope(inputs: Mapping[str, Any]) -> dict[str, Any]:
+    """Every quoted term except cost rates: what a same-version cost re-appraisal must keep unchanged."""
+    scope: dict[str, Any] = {field: inputs.get(field) for field in SCOPE_FIELDS}
+    for category in CATEGORIES:
+        lines = inputs.get(category)
+        lines = [lines] if isinstance(lines, Mapping) else (lines or [])
+        scope[category] = [{k: v for k, v in line.items() if k not in RATE_FIELDS}
+                           for line in lines if isinstance(line, Mapping)]
+    return scope
+
+
 def _preserved_quote(inputs: Mapping[str, Any], problems: _Problems) -> dict[str, Any] | None:
     update = inputs.get("cost_update")
     if not isinstance(update, Mapping) or not isinstance(update.get("previous_quote"), Mapping):
@@ -279,6 +295,9 @@ def _preserved_quote(inputs: Mapping[str, Any], problems: _Problems) -> dict[str
         if previous.get(field) != inputs.get(field):
             problems.bad(f"cost_update.previous_quote.{field}",
                          "A cost update re-appraises the same quote; it must not change the original terms.")
+    if "scope" in previous and previous["scope"] != quote_scope(inputs):
+        problems.bad("cost_update.previous_quote.scope",
+                     "Quantities, dates, or terms differ from the original quote; issue a new quote version.")
     if previous.get("cost_feed_version") == inputs.get("cost_feed_version"):
         problems.bad("cost_update.previous_quote.cost_feed_version", "A cost update must use a new feed version.")
     return copy.deepcopy(dict(previous))
@@ -376,6 +395,7 @@ def price_deal(inputs: Mapping[str, Any], *, today: date) -> dict[str, Any]:
             "within_representative_authority": within_rep,
             "within_director_authority": within_director,
             "ledger_lines": lines_used,
+            "quote_scope": quote_scope(inputs),
         })
 
     if outcome in MESSAGES:

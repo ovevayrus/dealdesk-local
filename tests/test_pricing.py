@@ -178,3 +178,14 @@ def test_compliant_economics_still_need_review_after_new_feed(case_inputs):
     result = price_deal(inputs, today=DEMO_DATE)
     assert result["approval_outcome"] == pricing.DIRECTOR_APPROVAL_REQUIRED
     assert result["review_required"] is True and result["release_allowed"] is False
+
+
+def test_cost_update_rejects_changed_scope_when_snapshot_present(case_inputs):
+    inputs = case_inputs("cost_shock")
+    original = price_deal(case_inputs("negotiated_offer"), today=DEMO_DATE)
+    inputs["cost_update"]["previous_quote"]["scope"] = original["quote_scope"]
+    assert price_deal(inputs, today=DEMO_DATE)["approval_outcome"] == pricing.BELOW_MARGIN_FLOOR
+    inputs["service"][0]["applicable_months"] = 13
+    result = price_deal(inputs, today=DEMO_DATE)
+    assert result["approval_outcome"] == pricing.INVALID_INPUT
+    assert "cost_update.previous_quote.scope" in [i["field"] for i in result["invalid_inputs"]]

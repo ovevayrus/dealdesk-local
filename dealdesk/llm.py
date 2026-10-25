@@ -19,6 +19,17 @@ class LocalModelError(RuntimeError):
     pass
 
 
+class _RefuseRedirects(urllib.request.HTTPRedirectHandler):
+    """The host allowlist is checked once, so a redirect must not move the request elsewhere."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise LocalModelError(f"Local model endpoint redirected to {newurl}; redirects are refused.")
+
+
+# No system proxies (a proxy could forward requests off the machine) and no redirects.
+_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}), _RefuseRedirects())
+
+
 def _request(settings: Settings, method: str, path: str, body: dict[str, Any] | None = None,
              timeout: float | None = None) -> dict[str, Any]:
     error = settings.llm_endpoint_error()
@@ -30,7 +41,7 @@ def _request(settings: Settings, method: str, path: str, body: dict[str, Any] | 
     data = json.dumps(body).encode("utf-8") if body is not None else None
     request = urllib.request.Request(f"{settings.llm_base_url}{path}", data=data, headers=headers, method=method)
     try:
-        with urllib.request.urlopen(request, timeout=timeout or settings.llm_timeout_seconds) as response:
+        with _OPENER.open(request, timeout=timeout or settings.llm_timeout_seconds) as response:
             return json.loads(response.read().decode("utf-8"))
     except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
         raise LocalModelError(f"Local model endpoint error: {exc}") from exc

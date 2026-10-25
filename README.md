@@ -32,7 +32,7 @@ Open **http://127.0.0.1:8000**. The server binds to loopback by default; set `DE
 
 ### Demo flow
 
-The UI is a simple chatbot: type a question (or click a suggested one) and it replies. Replies about price include number cards; every reply cites its sources.
+The UI is a simple chatbot: type a question (or click a suggested one) and it replies. Replies about price include number cards, and replies that draw on the documents cite the passages they used.
 
 1. Ask **Recommend a price for the demo customer.** You get $144,000.00 (10% discount), 32.22% stress margin, a $130,133.34 minimum acceptable price, and "Within representative authority", plus citations.
 2. Click a citation to open the supporting passage, its document, and its section.

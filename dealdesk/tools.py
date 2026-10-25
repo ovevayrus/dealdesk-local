@@ -7,7 +7,9 @@ structured results.
 
 from __future__ import annotations
 
+import hashlib
 import json
+import logging
 from typing import Any
 
 from . import documents, forecast, pricing
@@ -20,6 +22,7 @@ PRICED_OUTCOMES = {
     pricing.INFEASIBLE, pricing.BELOW_MARGIN_FLOOR, pricing.EXCEEDS_DIRECTOR,
     pricing.DIRECTOR_APPROVAL_REQUIRED, pricing.REPRESENTATIVE_AUTHORITY,
 }
+log = logging.getLogger("dealdesk")
 MANUAL = "manual"
 SCHEDULED = "scheduled_watcher"
 FEED_KEYS = {"feed_version", "as_of_date", "stress_scenario", "rates"}
@@ -36,6 +39,23 @@ class DemoTools:
 
     def open_quote(self) -> dict[str, Any] | None:
         return self.store.latest_quote(REFERENCE_QUOTE_ID)
+
+    def open_review(self) -> dict[str, Any] | None:
+        """The open cost review for the latest quote version, if a newer feed has re-appraised it."""
+        quote = self.open_quote()
+        if quote is None:
+            return None
+        return next((event for event in reversed(self.store.review_events())
+                     if event["quote_id"] == quote["quote_id"] and event["quote_version"] == quote["version"]
+                     and event["status"] == "open"), None)
+
+    def current_appraisal(self) -> dict[str, Any] | None:
+        """The economics that apply now: the revised appraisal under an open review, else the latest version's."""
+        review = self.open_review()
+        if review:
+            return review["revised_appraisal"]
+        quote = self.open_quote()
+        return quote["appraisal"] if quote else None
 
     # -- search_documents -----------------------------------------------------------
     def search_documents(self, query: str, account_id: str | None = None,
@@ -71,9 +91,14 @@ class DemoTools:
                 and latest["feed_version"] == feed["feed_version"]):
             return dict(latest["appraisal"], quote_version_created=False)
         version = (latest["version"] + 1) if latest else 1
+        review = self.open_review()
         appraisal = self.appraise(offer_revenue, version, currency=currency, feed=feed)
         if appraisal["approval_outcome"] not in PRICED_OUTCOMES:
             return dict(appraisal, quote_version_created=False)
+        if review:
+            appraisal["messages"].append(
+                f"Cost review #{review['id']} remains open for v{review['quote_version']}; this version is a new "
+                f"proposal priced on {feed['feed_version']} and needs its own human review and release.")
         self.store.add_quote_version(REFERENCE_QUOTE_ID, version, appraisal["offer_revenue"],
                                      feed["feed_version"], appraisal)
         return dict(appraisal, quote_version_created=True)
@@ -115,6 +140,7 @@ class DemoTools:
                 "stress_cost": original["stress_costs"]["total"],
                 "economic_floor": original["economic_floor"],
                 "approval_status": original["approval_outcome"],
+                "scope": original["quote_scope"],
             },
         }
         revised = pricing.price_deal(inputs, today=self.settings.today())
@@ -164,23 +190,36 @@ class DemoTools:
 
     # -- scheduled watcher ------------------------------------------------------------
     def poll_incoming_feeds(self) -> list[dict[str, Any]]:
-        """Apply each new feed file dropped into the local incoming folder, once."""
+        """Apply each new feed file dropped into the local incoming folder.
+
+        Files are deduplicated by content, so a corrected file is retried, and applying a feed
+        version that is already active creates no new review event.
+        """
         folder = self.settings.incoming_feed_dir
         if not folder.is_dir():
             return []
-        seen = set(self.store.get("watcher_seen_feeds", []))
+        seen = set(self.store.get("watcher_seen_files", []))
         applied = []
         for path in sorted(folder.glob("*.json")):
             try:
-                feed = json.loads(path.read_text(encoding="utf-8"))
-            except (OSError, json.JSONDecodeError):
+                raw = path.read_bytes()
+            except OSError:
                 continue
-            version = feed.get("feed_version") if isinstance(feed, dict) else None
-            if not version or version in seen or not FEED_KEYS <= set(feed):
+            digest = hashlib.sha256(raw).hexdigest()
+            if digest in seen:
                 continue
-            seen.add(version)
-            self.store.set("watcher_seen_feeds", sorted(seen))
-            applied.append(self.apply_cost_feed(feed, SCHEDULED))
+            seen.add(digest)
+            self.store.set("watcher_seen_files", sorted(seen))
+            try:
+                feed = json.loads(raw.decode("utf-8"))
+                if not isinstance(feed, dict) or not FEED_KEYS <= set(feed):
+                    raise ValueError("missing feed_version, as_of_date, stress_scenario, or rates")
+                result = self.apply_cost_feed(feed, SCHEDULED)
+            except (ValueError, KeyError, TypeError, UnicodeDecodeError) as exc:
+                log.warning("Scheduled watcher skipped %s: %s", path.name, exc)
+                continue
+            if not result["already_applied"]:
+                applied.append(result)
         return applied
 
     # -- reset ----------------------------------------------------------------------
@@ -225,7 +264,10 @@ def run_tool(tools: DemoTools, store: Store, name: str, arguments: dict[str, Any
     elif name == "forecast_costs":
         result = tools.forecast_costs(int(arguments.get("horizon", 6)))
     elif name == "apply_demo_cost_update":
-        result = tools.preview_cost_update() if arguments.get("preview") else tools.apply_demo_cost_update()
+        preview = arguments.get("preview", False)
+        if not isinstance(preview, bool):
+            raise TypeError("preview must be JSON true or false")
+        result = tools.preview_cost_update() if preview else tools.apply_demo_cost_update()
     else:
         raise KeyError(f"Unknown tool {name!r}; available: {', '.join(TOOL_NAMES)}")
     summary = _tool_summary(name, result)

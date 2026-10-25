@@ -44,7 +44,8 @@ _AMOUNT = re.compile(r"\$\s?(\d{1,3}(?:,\d{3})+|\d+)(\.\d{1,2})?\s?(k|thousand)?
                      r"|\b(\d{2,3}(?:\.\d+)?)\s?(k|thousand)\b", re.IGNORECASE)
 _PERCENT_OFF = re.compile(r"(\d{1,2}(?:\.\d{1,2})?)\s?%\s*(?:off|discount)", re.IGNORECASE)
 _FOREIGN_CURRENCY = re.compile(r"\b(eur|euros?|gbp|pounds? sterling|cad|jpy|yen)\b|[€£¥]", re.IGNORECASE)
-_NUMBER_IN_TEXT = re.compile(r"\$\s?\d[\d,]*(?:\.\d+)?|\d[\d,]*(?:\.\d+)?\s?%|\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b")
+_NUMBER_IN_TEXT = re.compile(r"\$\s?\d[\d,]*(?:\.\d+)?|\d[\d,]*(?:\.\d+)?\s?%|\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b"
+                             r"|\b\d{4,}(?:\.\d+)?\b|\b\d+(?:\.\d+)?\s?k\b", re.IGNORECASE)
 
 
 def usd(value: str | None) -> str:
@@ -244,18 +245,39 @@ class Agent:
         self._evidence(reply, "Sales director approval above 10% through 20% discount",
                        doc_types=["pricing_policy", "pricing_guidance"])
 
+    def _current_quote(self, reply: Reply) -> tuple[dict[str, Any], dict[str, Any] | None]:
+        """Economics that apply now (revised under an open cost review), pricing a standard offer if none exists."""
+        review = self.tools.open_review()
+        quote = self.tools.current_appraisal()
+        if quote is None:
+            return self._price(reply, None), None
+        reply.tool_calls.append({"tool": "price_deal", "arguments": {"reuse_open_quote": True},
+                                 "status": "ok", "summary": quote["approval_outcome"]})
+        return quote, review
+
     def _justify(self, reply: Reply, text: str) -> None:
-        current = self.tools.open_quote()
-        quote = current["appraisal"] if current else self._price(reply, None)
-        if current:
-            reply.tool_calls.append({"tool": "price_deal", "arguments": {"reuse_open_quote": True},
-                                     "status": "ok", "summary": quote["approval_outcome"]})
+        quote, review = self._current_quote(reply)
         self._quote_statements(reply, quote)
-        reply.text = (f"The {usd(quote['offer_revenue'])} offer is defensible on two grounds. Commercially, it "
-                      f"keeps a {quote['stress_margin_percent']}% stress margin above the "
-                      f"{usd(quote['economic_floor'])} floor. For the customer, it buys one accountable vendor "
-                      "for hardware, installation, and 24x7 support on their delivery date, which the cited "
-                      "competitor evidence says the alternatives do not match.")
+        if review:
+            original = quote["preserved_quote"]
+            reply.text = (f"Under the current cost feed {quote['cost_feed_version']}, the "
+                          f"{usd(quote['offer_revenue'])} offer is no longer defensible on margin: its stress margin "
+                          f"is {quote['stress_margin_percent']}% against the 25% floor, so it is blocked pending "
+                          f"review #{review['id']}. A new version at or above {usd(quote['economic_floor'])} would "
+                          "clear the floor. The original appraisal on "
+                          f"{original['cost_feed_version']} is preserved. The customer evidence below still "
+                          "supports the bundle's value.")
+        elif quote["meets_margin_floor"]:
+            reply.text = (f"The {usd(quote['offer_revenue'])} offer is defensible on two grounds. Commercially, it "
+                          f"keeps a {quote['stress_margin_percent']}% stress margin above the "
+                          f"{usd(quote['economic_floor'])} floor. For the customer, it buys one accountable vendor "
+                          "for hardware, installation, and 24x7 support on their delivery date, which the cited "
+                          "competitor evidence says the alternatives do not match.")
+        else:
+            reply.text = (f"The {usd(quote['offer_revenue'])} offer is not defensible on margin: its stress margin "
+                          f"is {quote['stress_margin_percent']}%, below the 25% floor of "
+                          f"{usd(quote['economic_floor'])}, so it is blocked. The evidence below supports the "
+                          "bundle's value at a compliant price.")
         self._evidence(reply, "must-have priorities one accountable vendor go-live before peak season",
                        account_id=PRIMARY_ACCOUNT, doc_types=["customer_profile"])
         self._evidence(reply, "why bundled accountability matters 24x7 sites", doc_types=["service_description"])
@@ -371,16 +393,23 @@ class Agent:
         reply.assumptions.append(f"{result['feed']['feed_version']}: {result['feed']['description']}")
 
     def _discount_range(self, reply: Reply, text: str) -> None:
-        current = self.tools.open_quote()
-        quote = current["appraisal"] if current else self._price(reply, None)
+        quote, review = self._current_quote(reply)
         self._quote_statements(reply, quote)
         rep, director = quote.get("representative_min_offer"), quote.get("director_min_offer")
         reply.calculated.insert(0, f"Lowest price on representative authority: {usd(rep)}; lowest with "
                                    f"director approval: {usd(director)}; economic floor: "
                                    f"{usd(quote['economic_floor'])}.")
-        reply.text = (f"On your own authority you can go down to {usd(rep)}. With sales director approval the "
-                      f"lowest permitted price is {usd(director)}, set by the stress-margin floor rather than the "
-                      "20% discount limit. Below that the offer is blocked.")
+        if rep is None:
+            reply.text = ("No price is permitted under current terms: the economic floor "
+                          f"{usd(quote['economic_floor'])} is above list price, so the deal is infeasible.")
+        else:
+            limit = ("set by the stress-margin floor rather than the 20% discount limit"
+                     if director == quote["economic_floor"] else "set by the 20% director discount limit")
+            reply.text = (f"On your own authority you can go down to {usd(rep)}. With sales director approval the "
+                          f"lowest permitted price is {usd(director)}, {limit}. Below that the offer is blocked.")
+        if review:
+            reply.text = (f"Using the current cost feed {quote['cost_feed_version']} (review #{review['id']} is "
+                          "open): " + reply.text)
         self._evidence(reply, "representative 10% director 20% inclusive authority below-floor blocked",
                        limit=2, doc_types=["pricing_policy", "pricing_guidance"])
 
@@ -463,7 +492,8 @@ class Agent:
         except llm.LocalModelError as exc:
             return {"mode": "scripted_fallback", "model": self.settings.llm_model,
                     "warnings": result["warnings"] + [f"Local model unavailable; showing scripted wording. ({exc})"]}
-        unsupported = unsupported_numbers(text, json.dumps(payload))
+        # The user's question is not evidence: only tool results and cited facts may supply numbers.
+        unsupported = unsupported_numbers(text, json.dumps({k: v for k, v in payload.items() if k != "question"}))
         if unsupported:
             return {"mode": "scripted_fallback", "model": self.settings.llm_model,
                     "warnings": result["warnings"] + [
@@ -472,27 +502,24 @@ class Agent:
         return {"mode": "local_model", "model": self.settings.llm_model, "text": text}
 
 
-def _numbers(text: str) -> set[Decimal]:
-    values = set()
-    for token in _NUMBER_IN_TEXT.findall(text):
-        cleaned = token.replace("$", "").replace(",", "").replace("%", "").strip()
-        try:
-            values.add(Decimal(cleaned).normalize())
-        except InvalidOperation:
-            continue
-    return values
+def _token_value(token: str) -> Decimal | None:
+    cleaned = token.replace("$", "").replace(",", "").replace("%", "").strip().lower()
+    scale = 1
+    if cleaned.endswith("k"):
+        cleaned, scale = cleaned[:-1].strip(), 1000
+    try:
+        return (Decimal(cleaned) * scale).normalize()
+    except InvalidOperation:
+        return None
 
 
 def unsupported_numbers(candidate: str, source: str) -> list[str]:
-    """Amounts/percentages in ``candidate`` that do not appear anywhere in ``source``."""
-    allowed = _numbers(source) | {Decimal(n).normalize() for n in re.findall(r"\d+(?:\.\d+)?", source)}
+    """Amounts/percentages in ``candidate`` that do not appear anywhere in ``source`` (the tool results)."""
+    allowed = {_token_value(t) for t in _NUMBER_IN_TEXT.findall(source)}
+    allowed |= {Decimal(n).normalize() for n in re.findall(r"\d+(?:\.\d+)?", source)}
     found = []
     for token in _NUMBER_IN_TEXT.findall(candidate):
-        cleaned = token.replace("$", "").replace(",", "").replace("%", "").strip()
-        try:
-            value = Decimal(cleaned).normalize()
-        except InvalidOperation:
-            continue
-        if value not in allowed:
+        value = _token_value(token)
+        if value is not None and value not in allowed:
             found.append(token.strip())
     return found

@@ -261,3 +261,86 @@ def test_offer_parsing():
     assert agent_module.parse_offer("what about 140k", list_price) == "140000.00"
     assert agent_module.parse_offer("give them 15% off", list_price) == "136000.00"
     assert agent_module.parse_offer("delivery on 2026-12-01", list_price) is None
+
+
+def test_follow_ups_after_cost_increase_use_current_economics(client):
+    chat(client, "Can we offer $136,000?")
+    chat(client, "Apply supplier cost increase")
+    justify = chat(client, "Why is this price justified?")["reply"]
+    assert justify["quote"]["stress_margin_percent"] == "22.35"
+    assert justify["quote"]["approval_outcome"] == "below_margin_floor"
+    assert "no longer defensible" in justify["text"] and "review #1" in justify["text"]
+    lowest = chat(client, "What is the lowest we can go?")["reply"]
+    assert lowest["quote"]["economic_floor"] == "140800.00"
+    assert lowest["quote"]["director_min_offer"] == "140800.00"
+    assert lowest["text"].startswith("Using the current cost feed synthetic-costs-v2 (review #1 is open)")
+    # A new version priced on the new feed is a proposal that names the still-open review.
+    new = chat(client, "Can we offer $142,000?")["reply"]["quote"]
+    assert new["quote_version"] == 2 and new["cost_feed_version"] == "synthetic-costs-v2"
+    assert new["approval_outcome"] == "director_approval_required"
+    assert any("Cost review #1 remains open for v1" in m for m in new["messages"])
+
+
+def test_preview_argument_must_be_boolean(client):
+    response = client.post("/api/tools/apply_demo_cost_update", json={"arguments": {"preview": "false"}})
+    assert response.status_code == 422
+    assert client.get("/api/state").json()["status"]["active_feed"]["feed_version"] == "synthetic-costs-v1"
+
+
+def test_watcher_skips_bad_feed_and_retries_corrected_file(client, settings):
+    chat(client, "Can we offer $136,000?")
+    folder = settings.incoming_feed_dir
+    folder.mkdir(parents=True, exist_ok=True)
+    feed = json.loads((FEEDS_DIR / "synthetic-costs-v2.json").read_text(encoding="utf-8"))
+    broken = json.loads(json.dumps(feed))
+    broken["rates"]["hardware"][1]["effective_from"] = "26 Oct 2026"
+    (folder / "supplier.json").write_text(json.dumps(broken), encoding="utf-8")
+    (folder / "garbage.json").write_text("{not json", encoding="utf-8")
+    tools = client.app.state.tools
+    assert tools.poll_incoming_feeds() == []
+    assert client.get("/api/state").json()["status"]["active_feed"]["feed_version"] == "synthetic-costs-v1"
+    (folder / "supplier.json").write_text(json.dumps(feed), encoding="utf-8")
+    applied = tools.poll_incoming_feeds()
+    assert len(applied) == 1 and applied[0]["revised"]["stress_margin_percent"] == "22.35"
+    (folder / "copy.json").write_text(json.dumps(feed), encoding="utf-8")  # same version, new file
+    assert tools.poll_incoming_feeds() == []
+    assert len(client.get("/api/state").json()["review_events"]) == 1
+
+
+def test_number_guard_catches_bare_and_k_amounts_and_ignores_the_question():
+    source = json.dumps({"calc": ["Offer $136,000.00, discount 15.00%, margin 28.24%"]})
+    assert agent_module.unsupported_numbers("Offer 150000 is approved.", source) == ["150000"]
+    assert agent_module.unsupported_numbers("Try 150k.", source) == ["150k"]
+    assert agent_module.unsupported_numbers("The 136k offer is 15% off.", source) == []
+
+
+def test_number_in_question_alone_is_not_allowed(client, local_mode, monkeypatch):
+    monkeypatch.setattr(llm, "chat", lambda *a, **k: "Yes, a 41% margin is possible.")
+    reply = chat(client, "Recommend a price. Is a 41% margin possible?")["reply"]
+    assert reply["intent"] == "recommend"
+    assert reply["mode"] == "scripted_fallback"  # 41 came only from the question, not the tools
+
+
+def test_local_model_redirects_are_refused(settings):
+    import http.server
+    import threading
+
+    class Redirect(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(302)
+            self.send_header("Location", "http://example.com/v1/models")
+            self.end_headers()
+
+        def log_message(self, *args):
+            pass
+
+    server = http.server.HTTPServer(("127.0.0.1", 0), Redirect)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        settings.mode, settings.llm_model = LOCAL_MODEL, "m"
+        settings.llm_base_url = f"http://127.0.0.1:{server.server_port}/v1"
+        status = llm.model_status(settings)
+        assert status["reachable"] is False and "redirects are refused" in status["detail"]
+    finally:
+        server.shutdown()
