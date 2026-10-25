@@ -48,3 +48,6 @@ team-brief-dealdesk.html
 notes/
 .playwright-cli/
 packages/viewer/.tmp/
+
+# Slack review ID -> deal mapping stays on this machine
+integrations/slack/runtime/

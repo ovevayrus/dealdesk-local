@@ -1,0 +1,86 @@
+{
+  "agents": {
+    "defaults": {
+      "workspace": "/home/dell/.openclaw/workspace",
+      "model": {
+        "primary": "vllm-local/qwen3.6-35b-a3b",
+        "fallbacks": []
+      },
+      "utilityModel": "vllm-local/qwen3.6-35b-a3b"
+    },
+    "entries": {
+      "main": {
+        "name": "main",
+        "workspace": "/home/dell/.openclaw/workspace",
+        "agentDir": "/home/dell/.openclaw/agents/main/agent",
+        "identity": {
+          "name": "main"
+        }
+      }
+    }
+  },
+  "plugins": {
+    "entries": {
+      "anthropic": {
+        "config": {
+          "sessionCatalog": {
+            "enabled": false
+          }
+        }
+      },
+      "codex": {
+        "config": {
+          "sessionCatalog": {
+            "enabled": false
+          }
+        }
+      }
+    }
+  },
+  "meta": {
+    "migrations": {
+      "modelPolicyAllowlist": true,
+      "utilityModelSeparation": true
+    },
+    "lastTouchedVersion": "2026.9.34"
+  },
+  "gateway": {
+    "mode": "local"
+  },
+  "telemetry": {
+    "enabled": false,
+    "consentedAt": "2026-10-25T21:15:22.344Z"
+  },
+  "models": {
+    "mode": "replace",
+    "providers": {
+      "vllm-local": {
+        "baseUrl": "http://127.0.0.1:8001/v1",
+        "api": "openai-completions",
+        "apiKey": "<REDACTED>",
+        "request": {
+          "allowPrivateNetwork": true
+        },
+        "timeoutSeconds": 300,
+        "models": [
+          {
+            "id": "qwen3.6-35b-a3b",
+            "name": "Qwen3.6-35B-A3B NVFP4 (local vLLM)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "contextWindow": 131072,
+            "maxTokens": 8192,
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          }
+        ]
+      }
+    }
+  }
+}
