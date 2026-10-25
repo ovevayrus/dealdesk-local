@@ -55,7 +55,7 @@ These are hand-calculated demonstration values, not measured customer savings or
 
 ## Current scope and status
 
-We are building a working, single-user chatbot demo using synthetic customers, competitors, costs, and policies. The public default branch currently contains the project plan and detailed brief; application development is being carried out in feature branches. This README describes the intended demo behavior, not a completed production system or verified hardware deployment.
+We are building a working, single-user chatbot demo using synthetic customers, competitors, costs, and policies. The public default branch currently contains the project plan and detailed brief; implementation work will be developed in feature branches. This README describes the intended demo behavior, not a completed production system or verified hardware deployment.
 
 The initial implementation focuses on one enterprise bundle, a small local document collection, USD pricing, simple forecasts, and a clear cost-change example. Production authentication, real CRM connections, and automatic customer sending are outside this demo's scope.
 
