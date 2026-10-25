@@ -102,3 +102,16 @@ python3 ~/dealdesk/scripts/test_toolcall.py  # tool-call smoke test
 - venv `.venv` (Python 3.12.3): `pip install -r requirements.txt`, `seed_demo_data.py --check` OK (10 documents, 51 passages), `pytest` **77 passed**.
 - App runs in tmux session `dealdesk`, window `app`: `.venv/bin/python -m dealdesk`.
 - `.env` (git-ignored): `DEALDESK_MODE=loca- **Fix (after a reboot, 16:12):** vLLM came back by itself (`--restart unless-stopped`); the app was restarted in tmux `dealdesk:app`. `dealdesk/llm.py` now sends `chat_template_kwargs: {"enable_thinking": false}`, with a new test `test_local_model_chat_disables_thinking` (fails without the fix). pytest: **78 passed**. Chat "Can we offer $136,000?" now returns `mode: local_model` from `qwen3.6-35b-a3b`.
+
+## Task 5: OpenClaw + dealdesk-local skill, 2026-10-25
+- Node.js **v24.22.1** (official linux-arm64 tarball, SHA256 verified) in `~/.local/opt`, symlinked into `~/.local/bin`; npm prefix `~/.local`. No sudo.
+- **OpenClaw 2026.9.34** (`extended-stable` channel) via `npm install -g`. npm 11 skipped package install scripts; nothing needed them so far.
+- `openclaw setup --baseline`, `openclaw telemetry off`. Config `~/.openclaw/openclaw.json`:
+  - `models.mode: "replace"`: only configured providers exist, no built-in cloud catalog.
+  - single provider `vllm-local` → `http://127.0.0.1:8001/v1` (`openai-completions`, dummy key, `allowPrivateNetwork: true`), model `qwen3.6-35b-a3b`.
+  - `agents.defaults.model: {primary: "vllm-local/qwen3.6-35b-a3b", fallbacks: []}`, `utilityModel` same; `decisionModel` unset (disabled).
+  - `openclaw models list` shows only `vllm-local/qwen3.6-35b-a3b`.
+- Skill copied to `~/.openclaw/workspace/skills/dealdesk-local/` → `openclaw skills info dealdesk-local`: Ready, visible to model.
+- Test: `openclaw agent --local --agent main -m "Use dealdesk-local to check whether we can offer $136,000"` took 17 s. The agent called `price_deal` via curl (one exec retry after a bad `timeout` parameter). `/api/status` → `external_agent.tool_calls_observed: 1, last_caller: openclaw`. vLLM `/metrics` confirms the requests were served locally. All figures in the answer match tool fields (offer 136000.00, discount 15.00%, stress margin 28.24%, floor 130133.34, director approval required, release not allowed).
+- Note: two later checks with `python -m dealdesk tool price_deal` logged as `cli-agent` and overwrote `last_caller`. Re-test 16:39 with no CLI calls afterwards: `/api/status` → `tool_calls_observed: 4, last_caller: openclaw`. The agent still does some arithmetic of its own (e.g. "$5,866.66 above the floor", "$24,000 off") even though the skill says to copy numbers only.
+- `proof/capture_egress.py`: stdlib egress sampler (host `ss` + vLLM container `/proc/<pid>/net`) that flags connections to known cloud model-provider IPs.
