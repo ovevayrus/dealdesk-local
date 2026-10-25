@@ -1,0 +1,49 @@
+---
+import type { HydratedEvidenceHit } from "../lib/retrieval.ts";
+
+interface Props {
+  evidence: HydratedEvidenceHit[];
+}
+
+const { evidence } = Astro.props;
+---
+
+<div class="panel evidence-panel" id="evidence-panel">
+  <h2>Evidence & Citations ({evidence.length})</h2>
+  {evidence.length === 0 ? (
+    <p class="empty-state">No cited evidence records for this quote.</p>
+  ) : (
+    <div class="evidence-list">
+      {evidence.map((hit) => {
+        const hashDisplay = hit.docHash === "SEED" ? "SEED" : hit.docHash.slice(0, 8);
+        return (
+          <div class="evidence-item" data-doc-id={hit.docId}>
+            <div class="evidence-header">
+              <span class="evidence-title">{hit.docTitle}</span>
+              <span class={`badge-classification ${hit.classification}`}>
+                {hit.classification}
+              </span>
+            </div>
+            <div class="evidence-meta">
+              <span>Section: <strong>{hit.section}</strong></span>
+              <span>•</span>
+              <span>Effective: {hit.effectiveDate}</span>
+              <span>•</span>
+              <span>Hash: <code>{hashDisplay}</code></span>
+              {hit.warning === "SOURCE_CHANGED" && (
+                <span class="badge-warning">SOURCE_CHANGED</span>
+              )}
+            </div>
+            <details class="evidence-details">
+              <summary>View supporting passage</summary>
+              <div class="passage">{hit.passage}</div>
+              {hit.reason && (
+                <div class="evidence-reason">Citation relevance: {hit.reason}</div>
+              )}
+            </details>
+          </div>
+        );
+      })}
+    </div>
+  )}
+</div>
