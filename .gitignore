@@ -34,6 +34,9 @@ logs/
 *.db
 .DS_Store
 Thumbs.db
+.pnpm-store/
+.astro/
+packages/*/dist/
 
 # Existing local preparation artifacts are not project source
 .brief-tools/
