@@ -1,0 +1,53 @@
+---
+interface Props {
+  quoteId: string;
+  version: number;
+}
+
+const { quoteId, version } = Astro.props;
+---
+
+<div class="panel">
+  <h2>Governance & Actions</h2>
+  <div class="actions-list">
+    <div class="action-item">
+      <div>
+        <div style="font-weight: 600; font-size: 0.875rem;">Request Concession</div>
+        <div class="action-reason">Concession approval workflow pending Suhas integration</div>
+      </div>
+      <button class="btn-action-disabled" disabled aria-disabled="true">
+        Request Concession
+      </button>
+    </div>
+
+    <div class="action-item">
+      <div>
+        <div style="font-weight: 600; font-size: 0.875rem;">Review Alternative Package</div>
+        <div class="action-reason">Alternative package generation cut per hackathon brief</div>
+      </div>
+      <button class="btn-action-disabled" disabled aria-disabled="true">
+        Alternative Scope
+      </button>
+    </div>
+
+    <div class="action-item">
+      <div>
+        <div style="font-weight: 600; font-size: 0.875rem;">Approve Quote (v{version})</div>
+        <div class="action-reason">Quote approval signature pending Suhas integration</div>
+      </div>
+      <button class="btn-action-disabled" disabled aria-disabled="true">
+        Approve Quote
+      </button>
+    </div>
+
+    <div class="action-item">
+      <div>
+        <div style="font-weight: 600; font-size: 0.875rem;">Mark Ready for Human Release</div>
+        <div class="action-reason">Human release gating pending Suhas integration</div>
+      </div>
+      <button class="btn-action-disabled" disabled aria-disabled="true">
+        Release Quote
+      </button>
+    </div>
+  </div>
+</div>

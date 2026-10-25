@@ -5,13 +5,18 @@ import { runIngest } from "./ingest.ts";
 try {
   closeDb();
   const dbPath = getDbPath();
-  if (existsSync(dbPath)) {
-    unlinkSync(dbPath);
-    console.log(`Deleted database at ${dbPath}`);
+  const pathsToDelete = [dbPath, `${dbPath}-wal`, `${dbPath}-shm`];
+
+  for (const p of pathsToDelete) {
+    if (existsSync(p)) {
+      unlinkSync(p);
+      console.log(`Deleted database file at ${p}`);
+    }
   }
-  runIngest();
+
+  const { documentCount, chunkCount } = runIngest();
   closeDb();
-  console.log("Reset complete.");
+  console.log(`Reset complete: ${documentCount} documents, ${chunkCount} chunks.`);
 } catch (err) {
   console.error("Reset failed:", err);
   process.exit(1);

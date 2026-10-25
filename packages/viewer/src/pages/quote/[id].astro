@@ -2,11 +2,13 @@
 import "../../styles/app.css";
 import { randomUUID } from "node:crypto";
 import { getDb } from "../../lib/db.ts";
-import { getActor, getActors, checkAccountScope } from "../../lib/session.ts";
+import { getActor, checkAccountScope } from "../../lib/session.ts";
 import { hydrateEvidence } from "../../lib/retrieval.ts";
+import ActorBanner from "../../components/ActorBanner.astro";
 import EvidencePanel from "../../components/EvidencePanel.astro";
 import OfferPanel from "../../components/OfferPanel.astro";
 import EconomicsPanel from "../../components/EconomicsPanel.astro";
+import ActionsPanel from "../../components/ActionsPanel.astro";
 import type { QuoteVersion } from "@dealdesk/contracts";
 
 const { id } = Astro.params;
@@ -16,14 +18,11 @@ const url = new URL(Astro.request.url);
 const actorQuery = url.searchParams.get("actor");
 if (actorQuery) {
   Astro.cookies.set("dd_actor", actorQuery, { path: "/", httpOnly: false });
-  // Redirect to clean URL
   url.searchParams.delete("actor");
   return Astro.redirect(url.pathname + (url.search ? url.search : ""));
 }
 
 const actor = getActor(Astro.request);
-const allActors = getActors();
-
 const db = getDb();
 
 const versionQuery = url.searchParams.get("v") || url.searchParams.get("version");
@@ -86,22 +85,13 @@ const hydratedEvidence = hydrateEvidence(quoteVersion.evidence, actor);
   </head>
   <body>
     <div class="container">
-      <div class="actor-banner">
-        <div>
-          Active Session: <strong>{actor.userId}</strong> ({actor.role}) &bull; Accounts: {actor.accountIds.join(", ")}
-        </div>
-        <div class="role-switch">
-          Switch role:
-          {allActors.map((a) => (
-            <a href={`?actor=${a.userId}`}>
-              {a.userId} ({a.role})
-            </a>
-          ))}
-        </div>
-      </div>
+      <ActorBanner />
 
       <div class="header">
         <div>
+          <div style="margin-bottom: 0.25rem;">
+            <a href="/" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">&larr; Back to Deal Intake</a>
+          </div>
           <h1>Deal Pack: {quoteVersion.quoteId} (v{quoteVersion.version})</h1>
           <p style="color: var(--text-muted); font-size: 0.875rem;">
             Account: <strong>{quoteVersion.request.accountId}</strong> &bull; Deal: {quoteVersion.request.dealId} &bull; Created: {quoteVersion.createdAt}
@@ -143,6 +133,7 @@ const hydratedEvidence = hydrateEvidence(quoteVersion.evidence, actor);
         <OfferPanel quoteVersion={quoteVersion} />
         <EconomicsPanel economics={quoteVersion.economics} quoteId={quoteVersion.quoteId} version={quoteVersion.version} />
         <EvidencePanel evidence={hydratedEvidence} />
+        <ActionsPanel quoteId={quoteVersion.quoteId} version={quoteVersion.version} />
       </div>
     </div>
   </body>
