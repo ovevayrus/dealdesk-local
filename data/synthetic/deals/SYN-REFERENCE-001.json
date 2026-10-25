@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "description": "Synthetic demo deal request for the reference quote. Rates are not stored here; they are selected from the active cost feed by procurement, shipment, installation, and service dates.",
+  "quote_id": "SYN-REFERENCE-001",
+  "account_id": "SYN-ACCOUNT-001",
+  "account_name": "Lakeshore Distribution Cooperative",
+  "bundle_id": "SYN-100-UNITS-12-MONTH-SERVICE",
+  "bundle_name": "100 CR-200 Edge Gateways, installation, and 12 months of managed service",
+  "currency": "USD",
+  "list_revenue": "160000.00",
+  "standard_discount": "0.10",
+  "payment_terms": "standard_upfront",
+  "delivery_date": "2026-12-01",
+  "quote_expires_on": "2026-11-15",
+  "hardware": [
+    {"sku": "CR-200", "procurement_date": "2026-11-01", "units": 100}
+  ],
+  "freight": [
+    {"lane": "RNO-CMH", "shipment_date": "2026-11-28", "shipments": 2}
+  ],
+  "installation": {"role": "field_technician", "installation_date": "2026-12-01", "hours": "40"},
+  "service": [
+    {"plan": "managed_edge_24x7", "start_date": "2026-12-01", "active_units": 100, "applicable_months": 12}
+  ]
+}

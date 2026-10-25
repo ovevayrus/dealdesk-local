@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "feed_version": "synthetic-costs-v1",
+  "as_of_date": "2026-10-25",
+  "stress_scenario": "joint_cost_stress_v1",
+  "description": "Initial synthetic cost feed: contracted supplier, carrier, labor, and service rates. The named joint stress scenario adds 10% to hardware, 20% to freight, and USD 1.00/unit/month to service.",
+  "rates": {
+    "hardware": [
+      {"sku": "CR-200", "effective_from": "2026-10-01", "base": "600.00", "stress": "660.00",
+       "unit": "USD/unit", "source": "Synthetic supplier price list SPL-2026-10"}
+    ],
+    "freight": [
+      {"lane": "RNO-CMH", "effective_from": "2026-10-01", "base": "1000.00", "stress": "1200.00",
+       "unit": "USD/shipment", "source": "Synthetic carrier rate card RC-2026-Q4"}
+    ],
+    "installation": [
+      {"role": "field_technician", "effective_from": "2026-01-01", "base": "100.00", "stress": "100.00",
+       "unit": "USD/hour", "source": "Synthetic loaded labor rate LR-2026"}
+    ],
+    "service": [
+      {"plan": "managed_edge_24x7", "effective_from": "2026-01-01", "base": "20.00", "stress": "21.00",
+       "unit": "USD/active unit/month", "source": "Synthetic service cost model SCM-2026 (explicit base/high assumption)"}
+    ]
+  }
+}

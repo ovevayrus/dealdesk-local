@@ -1,0 +1,26 @@
+name: tests
+
+on:
+  push:
+    branches: [develop, main, "integration/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Validate pricing reference fixtures
+        run: python scripts/validate_pricing_fixtures.py
+      - name: Check synthetic forecast data matches its seed
+        run: python scripts/seed_demo_data.py --check
+      - name: Run tests
+        run: python -m pytest
