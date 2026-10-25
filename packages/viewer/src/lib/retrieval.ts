@@ -85,12 +85,16 @@ export interface HydratedEvidenceHit extends EvidenceHit {
   warning?: "SOURCE_CHANGED";
 }
 
-export function hydrateEvidence(refs: EvidenceRef[], actor: Actor): HydratedEvidenceHit[] {
+export function hydrateEvidence(refs: EvidenceRef[], actor: Actor, accountId: string): HydratedEvidenceHit[] {
+  if (!checkAccountScope(actor, accountId)) {
+    throw new ForbiddenAccountError(`FORBIDDEN_ACCOUNT: Actor ${actor.userId} not authorized for account ${accountId}`);
+  }
+
   const db = getDb();
   const allowedClassifications = getAllowedClassifications(actor.role);
   const classPlaceholders = allowedClassifications.map(() => "?").join(", ");
 
-  // Direct SQL lookup filtering by classification placeholders
+  // References never grant access: enforce the quote's account and actor's clearance.
   const sql = `
     SELECT c.doc_id, c.section, c.chunk_index, c.page, c.body,
            d.doc_hash, d.title, d.effective_date, d.classification
@@ -99,16 +103,22 @@ export function hydrateEvidence(refs: EvidenceRef[], actor: Actor): HydratedEvid
     WHERE c.doc_id = ?
       AND c.section = ?
       AND (c.chunk_index = ? OR ? IS NULL)
+      AND (d.account_id IS NULL OR d.account_id = ?)
       AND d.classification IN (${classPlaceholders})
     ORDER BY c.chunk_index ASC
     LIMIT 1;
   `;
   const stmt = db.prepare(sql);
 
-  // Fallback statement to check why an item wasn't returned (withheld vs missing)
+  // Only load fallback metadata when the actor may read this document for this quote.
   const docStmt = db.prepare(`
-    SELECT doc_id, classification, title, effective_date FROM documents WHERE doc_id = ?
+    SELECT doc_id, classification, title, effective_date
+    FROM documents
+    WHERE doc_id = ?
+      AND (account_id IS NULL OR account_id = ?)
+      AND classification IN (${classPlaceholders})
   `);
+  const existsStmt = db.prepare("SELECT 1 FROM documents WHERE doc_id = ?");
 
   const hits: HydratedEvidenceHit[] = [];
 
@@ -121,6 +131,7 @@ export function hydrateEvidence(refs: EvidenceRef[], actor: Actor): HydratedEvid
       ref.section,
       targetChunkIndex,
       targetChunkIndex,
+      accountId,
       ...allowedClassifications
     ) as any;
 
@@ -149,43 +160,41 @@ export function hydrateEvidence(refs: EvidenceRef[], actor: Actor): HydratedEvid
       hits.push(hit);
     } else {
       // Row not returned: determine if document exists and is withheld, or missing
-      const doc = docStmt.get(ref.docId) as any;
-      if (doc) {
-        if (!allowedClassifications.includes(doc.classification)) {
-          // Document exists but current actor is not cleared to read its classification
-          hits.push({
-            docId: ref.docId,
-            docHash: ref.docHash,
-            docTitle: "[WITHHELD]",
-            section: "[WITHHELD]",
-            chunkIndex: ref.chunkIndex ?? 0,
-            page: null,
-            passage: "[WITHHELD: Passage restricted for current role]",
-            effectiveDate: "[WITHHELD]",
-            classification: "internal", // Never expose "restricted" to unauthorized roles
-            rank: i + 1,
-            reason: "Access restricted for current role",
-            withheld: true,
-            missing: false,
-          });
-        } else {
-          // Document exists and is authorized, but the section/chunk was not found
-          hits.push({
-            docId: ref.docId,
-            docHash: ref.docHash,
-            docTitle: doc.title,
-            section: ref.section,
-            chunkIndex: ref.chunkIndex ?? 0,
-            page: null,
-            passage: "[MISSING: Citation section not found in document]",
-            effectiveDate: doc.effective_date,
-            classification: doc.classification,
-            rank: i + 1,
-            reason: "Citation missing",
-            withheld: false,
-            missing: true,
-          });
-        }
+      const doc = docStmt.get(ref.docId, accountId, ...allowedClassifications) as any;
+      if (!doc && existsStmt.get(ref.docId)) {
+        // An existing document outside account or classification scope exposes no metadata.
+        hits.push({
+          docId: ref.docId,
+          docHash: ref.docHash,
+          docTitle: "[WITHHELD]",
+          section: "[WITHHELD]",
+          chunkIndex: ref.chunkIndex ?? 0,
+          page: null,
+          passage: "[WITHHELD: Passage restricted for current account or role]",
+          effectiveDate: "[WITHHELD]",
+          classification: "internal", // Never expose "restricted" to unauthorized roles
+          rank: i + 1,
+          reason: "Access restricted for current account or role",
+          withheld: true,
+          missing: false,
+        });
+      } else if (doc) {
+        // Document exists and is authorized, but the section/chunk was not found
+        hits.push({
+          docId: ref.docId,
+          docHash: ref.docHash,
+          docTitle: doc.title,
+          section: ref.section,
+          chunkIndex: ref.chunkIndex ?? 0,
+          page: null,
+          passage: "[MISSING: Citation section not found in document]",
+          effectiveDate: doc.effective_date,
+          classification: doc.classification,
+          rank: i + 1,
+          reason: "Citation missing",
+          withheld: false,
+          missing: true,
+        });
       } else {
         // Document does not exist in corpus
         hits.push({

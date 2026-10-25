@@ -53,22 +53,17 @@ export const POST: APIRoute = async ({ request }) => {
     const dealRequest = validation.dealRequest;
 
     // Retrieve evidence references for this deal
-    let evidenceRefs: QuoteVersion["evidence"] = [];
-    try {
-      const hits = searchEvidence(actor, {
+    const evidenceResult = searchEvidence({
         accountId: dealRequest.accountId,
         query: `${dealRequest.sku} freight rates installation logistics renewal discount`,
         topK: 5,
-      });
-      evidenceRefs = hits.map((h) => ({
+      }, actor);
+    const evidenceRefs: QuoteVersion["evidence"] = evidenceResult.hits.map((h) => ({
         docId: h.docId,
         docHash: h.docHash,
         section: h.section,
         chunkIndex: h.chunkIndex,
       }));
-    } catch {
-      evidenceRefs = [];
-    }
 
     // Price the deal in base scenario
     const economics = await priceDeal({
@@ -145,7 +140,10 @@ export const POST: APIRoute = async ({ request }) => {
             message: err.message,
           },
         }),
-        { status: 502, headers: { "Content-Type": "application/json" } }
+        {
+          status: ["PRICING_FIXTURE_UNSUPPORTED_INPUT", "PRICING_INVALID_REQUEST"].includes(err.code) ? 422 : 502,
+          headers: { "Content-Type": "application/json" },
+        }
       );
     }
 

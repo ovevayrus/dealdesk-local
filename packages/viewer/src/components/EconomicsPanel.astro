@@ -5,9 +5,11 @@ interface Props {
   economics: Economics;
   quoteId: string;
   version: number;
+  scenario?: "base" | "shock";
 }
 
-const { economics, quoteId, version } = Astro.props;
+const { economics, quoteId, version, scenario = "base" } = Astro.props;
+const isBlocked = economics.warnings.some((warning) => warning.severity === "block");
 ---
 
 <div class="panel economics-panel" id="economics-panel" data-quote-id={quoteId} data-version={version}>
@@ -31,8 +33,8 @@ const { economics, quoteId, version } = Astro.props;
         Scenario:
       </label>
       <select id="scenario-select" style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.85rem;">
-        <option value="base" selected={economics.stressMargin === "28.24"}>Base Case</option>
-        <option value="shock" selected={economics.stressMargin === "22.35"}>Supplier Shock (+8% cost)</option>
+        <option value="base" selected={scenario === "base"}>Base Case</option>
+        <option value="shock" selected={scenario === "shock"}>Supplier Shock (+8% cost)</option>
       </select>
     </div>
     <div style="flex: 1;">
@@ -55,6 +57,8 @@ const { economics, quoteId, version } = Astro.props;
       </button>
     </div>
   </div>
+
+  <p id="reprice-error" role="alert" hidden style="color: var(--danger);"></p>
 
   <!-- Cost Breakdown Ledger -->
   <table class="data-table">
@@ -91,7 +95,7 @@ const { economics, quoteId, version } = Astro.props;
       <tr>
         <td>Stress Margin</td>
         <td class="numeric">
-          <strong style={`color: ${economics.stressMargin < economics.marginFloor ? 'var(--danger)' : 'var(--success)'};`}>
+          <strong style={`color: ${isBlocked ? 'var(--danger)' : 'var(--success)'};`}>
             {economics.stressMargin}%
           </strong>
         </td>
@@ -120,18 +124,27 @@ const { economics, quoteId, version } = Astro.props;
   </table>
 
   <script is:inline>
-    // Sensitivity handler per Section 11: replaces innerHTML with server-rendered fragment
+    // Navigate to the saved version so every panel uses the same immutable quote.
     (function () {
       const panel = document.getElementById("economics-panel");
       if (!panel) return;
       const repriceBtn = document.getElementById("reprice-btn");
       const scenarioSelect = document.getElementById("scenario-select");
       const deltaInput = document.getElementById("supplier-delta-input");
+      const errorBox = document.getElementById("reprice-error");
+      let pending = false;
 
       async function triggerReprice() {
-        if (!repriceBtn) return;
+        if (!repriceBtn || pending) return;
+        pending = true;
         repriceBtn.disabled = true;
         repriceBtn.textContent = "Pricing...";
+        if (scenarioSelect) scenarioSelect.disabled = true;
+        if (deltaInput) deltaInput.disabled = true;
+        if (errorBox) {
+          errorBox.hidden = true;
+          errorBox.textContent = "";
+        }
 
         try {
           const quoteId = panel.dataset.quoteId;
@@ -150,23 +163,39 @@ const { economics, quoteId, version } = Astro.props;
           });
 
           if (!response.ok) {
-            alert("Reprice failed: " + response.statusText);
-            return;
+            let message = "Reprice failed (HTTP " + response.status + ").";
+            try {
+              const payload = await response.json();
+              if (typeof payload.error?.message === "string") message = payload.error.message;
+            } catch {
+              // Keep a useful message if the server did not return JSON.
+            }
+            throw new Error(message);
           }
 
-          const htmlFragment = await response.text();
           const newVersion = response.headers.get("X-Quote-Version");
-          panel.innerHTML = htmlFragment;
-          if (newVersion) {
-            panel.dataset.version = newVersion;
+          if (!newVersion || !/^[1-9]\d*$/.test(newVersion)) {
+            throw new Error("Pricing returned no valid quote version. Reload the quote to review its history.");
           }
+          const nextUrl = new URL(window.location.href);
+          nextUrl.pathname = "/quote/" + encodeURIComponent(quoteId);
+          nextUrl.searchParams.delete("version");
+          nextUrl.searchParams.set("v", newVersion);
+          nextUrl.hash = "";
+          window.location.assign(nextUrl.href);
         } catch (err) {
-          console.error("Reprice request failed:", err);
+          if (errorBox) {
+            errorBox.textContent = err instanceof Error ? err.message : "Reprice request failed. Try again.";
+            errorBox.hidden = false;
+          }
         } finally {
+          pending = false;
           if (repriceBtn) {
             repriceBtn.disabled = false;
             repriceBtn.textContent = "Reprice Deal";
           }
+          if (scenarioSelect) scenarioSelect.disabled = false;
+          if (deltaInput) deltaInput.disabled = false;
         }
       }
 

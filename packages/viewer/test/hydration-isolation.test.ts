@@ -1,14 +1,32 @@
-import test from "node:test";
+import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { hydrateEvidence } from "../src/lib/retrieval.ts";
+import { hydrateEvidence, ForbiddenAccountError } from "../src/lib/retrieval.ts";
+import { closeDb } from "../src/lib/db.ts";
+import { runIngest } from "../scripts/ingest.ts";
 import type { Actor, QuoteVersion, EvidenceRef } from "@dealdesk/contracts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const seedFile = resolve(__dirname, "../fixtures/quote-version.seed.json");
 const seedQuote: QuoteVersion = JSON.parse(readFileSync(seedFile, "utf-8"));
+const testDirectory = mkdtempSync(resolve(tmpdir(), "dealdesk-hydration-"));
+const originalDbPath = process.env.DEALDESK_DB_PATH;
+
+before(() => {
+  closeDb();
+  process.env.DEALDESK_DB_PATH = resolve(testDirectory, "hydration.db");
+  runIngest();
+});
+
+after(() => {
+  closeDb();
+  if (originalDbPath === undefined) delete process.env.DEALDESK_DB_PATH;
+  else process.env.DEALDESK_DB_PATH = originalDbPath;
+  rmSync(testDirectory, { recursive: true, force: true });
+});
 
 const sofia: Actor = {
   userId: "u-sofia",
@@ -23,8 +41,8 @@ const dana: Actor = {
 };
 
 test("hydration-isolation: u-sofia cannot read restricted citations; marked withheld with no leakage", () => {
-  const sofiaHits = hydrateEvidence(seedQuote.evidence, sofia);
-  const danaHits = hydrateEvidence(seedQuote.evidence, dana);
+  const sofiaHits = hydrateEvidence(seedQuote.evidence, sofia, "ACME-7");
+  const danaHits = hydrateEvidence(seedQuote.evidence, dana, "ACME-7");
 
   // Assert hit count is identical (list must not silently shrink)
   assert.equal(
@@ -97,8 +115,58 @@ test("hydration-missing: unknown document or section returns missing: true witho
     },
   ];
 
-  const hits = hydrateEvidence(brokenRefs, dana);
+  const hits = hydrateEvidence(brokenRefs, dana, "ACME-7");
   assert.equal(hits.length, 2);
   assert.equal(hits[0].missing, true);
   assert.equal(hits[1].missing, true);
+});
+
+test("hydration-isolation: actor must be authorized for the requested quote account", () => {
+  assert.throws(
+    () => hydrateEvidence([], sofia, "NORTHWIND-2"),
+    ForbiddenAccountError
+  );
+});
+
+test("hydration-isolation: foreign-account references and fallback metadata stay withheld", () => {
+  const foreignRefs: EvidenceRef[] = [
+    { docId: "northwind-profile", docHash: "SEED", section: "Summary", chunkIndex: 0 },
+    { docId: "northwind-profile", docHash: "SEED", section: "Missing Section", chunkIndex: 99 },
+  ];
+
+  // Even a manager assigned to both accounts cannot use Northwind evidence in an ACME quote.
+  for (const actor of [sofia, dana]) {
+    const hits = hydrateEvidence(foreignRefs, actor, "ACME-7");
+    assert.equal(hits.length, foreignRefs.length);
+    for (const hit of hits) {
+      assert.equal(hit.withheld, true);
+      assert.equal(hit.missing, false);
+      assert.equal(hit.docTitle, "[WITHHELD]");
+      assert.equal(hit.section, "[WITHHELD]");
+      assert.equal(hit.effectiveDate, "[WITHHELD]");
+      assert.ok(!hit.passage.includes("maritime"));
+      assert.ok(!hit.passage.includes("Northwind Traders"));
+    }
+  }
+
+  const [authorized] = hydrateEvidence([foreignRefs[0]], dana, "NORTHWIND-2");
+  assert.equal(authorized.withheld, false);
+  assert.ok(authorized.passage.includes("maritime"));
+});
+
+test("hydration-isolation: generic public evidence remains visible for authorized accounts", () => {
+  const publicRef: EvidenceRef = {
+    docId: "service-descriptions",
+    docHash: "SEED",
+    section: "Summary",
+    chunkIndex: 0,
+  };
+
+  for (const [actor, accountId] of [[sofia, "ACME-7"], [dana, "NORTHWIND-2"]] as const) {
+    const [hit] = hydrateEvidence([publicRef], actor, accountId);
+    assert.equal(hit.withheld, false);
+    assert.equal(hit.missing, false);
+    assert.equal(hit.classification, "public");
+    assert.ok(hit.passage.includes("Standard catalog"));
+  }
 });

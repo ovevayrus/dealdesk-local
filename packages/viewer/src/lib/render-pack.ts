@@ -60,7 +60,7 @@ export function buildCustomerDraft(quoteVersion: QuoteVersion): CustomerDraft {
 
 export function buildRenderPack(quoteVersion: QuoteVersion, actor: Actor): RenderPack {
   const customer = buildCustomerDraft(quoteVersion);
-  const hydratedEvidence = hydrateEvidence(quoteVersion.evidence, actor);
+  const hydratedEvidence = hydrateEvidence(quoteVersion.evidence, actor, quoteVersion.request.accountId);
 
   const internal: InternalDealPack = {
     quoteId: quoteVersion.quoteId,

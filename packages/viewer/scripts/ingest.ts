@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve, dirname, basename } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { createHash } from "node:crypto";
 import { getDb, resetSchema, closeDb } from "../src/lib/db.ts";
 
@@ -201,8 +201,8 @@ export function runIngest(): { documentCount: number; chunkCount: number } {
   return { documentCount: files.length, chunkCount: totalChunks };
 }
 
-// When run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// When run directly (pathToFileURL handles Windows drive letters and spaces)
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
     const res = runIngest();
     closeDb();

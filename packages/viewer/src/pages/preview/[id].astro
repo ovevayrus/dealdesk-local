@@ -21,15 +21,23 @@ if (actorQuery) {
 const actor = getActor(Astro.request);
 
 const db = getDb();
-const stmt = db.prepare(`
+const versionQuery = url.searchParams.get("v") || url.searchParams.get("version");
+if (versionQuery && (!/^[1-9]\d*$/.test(versionQuery) || !Number.isSafeInteger(Number(versionQuery)))) {
+  return new Response("Invalid quote version", { status: 400 });
+}
+const row = versionQuery
+  ? db.prepare(`
+  SELECT quote_id, version, payload, created_at
+  FROM quote_versions
+  WHERE quote_id = ? AND version = ?
+`).get(id, Number(versionQuery)) as any
+  : db.prepare(`
   SELECT quote_id, version, payload, created_at
   FROM quote_versions
   WHERE quote_id = ?
   ORDER BY version DESC
   LIMIT 1
-`);
-
-const row = stmt.get(id) as any;
+`).get(id) as any;
 
 if (!row) {
   return new Response(`Quote ${id} not found`, { status: 404 });
