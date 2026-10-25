@@ -1,0 +1,30 @@
+{
+  "currency": "USD",
+  "listPrice": "160000.00",
+  "totalContractValue": "136000.00",
+  "upfront": "112000.00",
+  "recurring": "24000.00",
+  "discountPct": "15.00",
+  "costs": [
+    { "label": "Hardware, 100 units",     "expected": "60000.00", "stress": "66000.00", "unit": "USD" },
+    { "label": "Freight, two shipments",  "expected": "2000.00",  "stress": "2400.00",  "unit": "USD" },
+    { "label": "Installation",            "expected": "4000.00",  "stress": "4000.00",  "unit": "USD" },
+    { "label": "Service, twelve months",  "expected": "24000.00", "stress": "25200.00", "unit": "USD" }
+  ],
+  "baseCostTotal": "90000.00",
+  "stressCostTotal": "97600.00",
+  "grossMargin": "33.82",
+  "stressMargin": "28.24",
+  "marginFloor": "25.00",
+  "minAcceptablePrice": "130133.34",
+  "recommendedPrice": "144000.00",
+  "feasibleRange": { "low": "130133.34", "high": "160000.00" },
+  "warnings": [
+    { "code": "EXCEEDS_REP_AUTHORITY", "message": "A 15% discount exceeds the 10% rep limit and requires director approval.", "severity": "warn" }
+  ],
+  "assumptions": [
+    "Taxes, FX, financing, returns, and working-capital effects are excluded.",
+    "Twelve-month service term, one known payment schedule, USD only."
+  ],
+  "dataVersion": "feed-2026-10-25-a"
+}
