@@ -4,7 +4,6 @@ import { randomUUID } from "node:crypto";
 import { getDb } from "../../lib/db.ts";
 import { getActor, checkAccountScope } from "../../lib/session.ts";
 import { buildCustomerDraft } from "../../lib/render-pack.ts";
-import ActorBanner from "../../components/ActorBanner.astro";
 import type { QuoteVersion } from "@dealdesk/contracts";
 
 const { id } = Astro.params;
@@ -71,8 +70,8 @@ const customerDraft = buildCustomerDraft(quoteVersion);
     <title>Customer Proposal Draft — {quoteVersion.request.dealId}</title>
   </head>
   <body style="background: #f8fafc; color: #0f172a; padding: 2rem;">
-    <div style="max-width: 800px; margin: 0 auto 1.5rem auto;">
-      <ActorBanner />
+    <!-- Internal review chrome only. Never part of the customer draft; excluded from export. -->
+    <div data-internal-chrome style="max-width: 800px; margin: 0 auto 1.5rem auto;">
       <div style="margin-top: 0.5rem;">
         <a href={`/quote/${quoteVersion.quoteId}?v=${quoteVersion.version}`} style="font-size: 0.85rem; color: #2563eb; text-decoration: none;">&larr; Back to Internal Deal Pack</a>
       </div>
