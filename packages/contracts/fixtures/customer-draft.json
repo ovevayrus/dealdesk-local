@@ -1,0 +1,11 @@
+{
+  "currency": "USD",
+  "totalContractValue": "136000.00",
+  "upfront": "112000.00",
+  "recurring": "24000.00",
+  "quoteExpiry": "2026-12-01",
+  "scopeLocations": 6,
+  "termMonths": 12,
+  "destination": "6 sites across US",
+  "explanation": "This offer includes deployment at 6 locations and 12 months of managed support. The quoted price is valid through 2026-12-01; a phased deployment option can reduce the initial commitment."
+}

@@ -1,0 +1,248 @@
+---
+import "../styles/app.css";
+import ActorBanner from "../components/ActorBanner.astro";
+import { getActor } from "../lib/session.ts";
+import { getSkus } from "../lib/validate.ts";
+
+const url = new URL(Astro.request.url);
+const actorQuery = url.searchParams.get("actor");
+if (actorQuery) {
+  Astro.cookies.set("dd_actor", actorQuery, { path: "/", httpOnly: false });
+  url.searchParams.delete("actor");
+  return Astro.redirect(url.pathname + (url.search ? url.search : ""));
+}
+
+const actor = getActor(Astro.request);
+const skus = getSkus();
+const primarySku = skus[0];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Deal Request — DealDesk Local</title>
+  </head>
+  <body>
+    <div class="container">
+      <ActorBanner />
+
+      <div class="header">
+        <div>
+          <h1>DealDesk Local: Deal Intake</h1>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">
+            Configure and submit pricing requests for local document intelligence and cost modeling.
+          </p>
+        </div>
+        <div>
+          <a href="/quote/q-seed-acme-7" style="color: var(--primary); font-size: 0.875rem; font-weight: 600; text-decoration: none;">
+            &rarr; View Seeded Reference Quote (ACME-7)
+          </a>
+        </div>
+      </div>
+
+      <div id="error-container" class="error-summary" style="display: none;">
+        <h3 id="error-title">Quote release blocked. Fix the listed fields:</h3>
+        <ul id="error-list"></ul>
+      </div>
+
+      <div class="panel">
+        <h2>Commercial Inputs & Deal Request Form</h2>
+        <form id="deal-form" action="/api/request" method="POST">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="accountId">
+                Account ID
+                <span class="badge-required">Required</span>
+              </label>
+              <select id="accountId" name="accountId" class="form-control" required>
+                <option value="ACME-7" selected={actor.accountIds.includes("ACME-7") || actor.role === "admin"}>ACME-7 (Acme Logistics)</option>
+                <option value="NORTHWIND-2" selected={!actor.accountIds.includes("ACME-7") && (actor.accountIds.includes("NORTHWIND-2") || actor.role === "admin")}>NORTHWIND-2 (Northwind Maritime)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="sku">
+                Product SKU
+                <span class="badge-required">Required</span>
+              </label>
+              <select id="sku" name="sku" class="form-control" required>
+                {skus.map((s) => (
+                  <option value={s.sku}>
+                    {s.sku} — {s.name} (${s.listPrice})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="dealId">
+                Deal Reference ID
+                <span class="badge-default">Auto-generated if blank</span>
+              </label>
+              <input type="text" id="dealId" name="dealId" class="form-control" value="DEAL-2026-001" />
+            </div>
+
+            <div class="form-group">
+              <label for="deliveryStart">
+                Delivery Start Date
+                <span class="badge-required">Critical Input</span>
+              </label>
+              <input type="date" id="deliveryStart" name="deliveryStart" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <label for="deliveryEnd">
+                Delivery End Date
+                <span class="badge-required">Critical Input</span>
+              </label>
+              <input type="date" id="deliveryEnd" name="deliveryEnd" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <label for="quantity">
+                System Quantity
+                <span class="badge-default">Default: {primarySku?.defaultQuantity ?? 100}</span>
+              </label>
+              <input type="number" id="quantity" name="quantity" class="form-control" placeholder={String(primarySku?.defaultQuantity ?? 100)} />
+            </div>
+
+            <div class="form-group">
+              <label for="scopeLocations">
+                Scope Locations
+                <span class="badge-default">Default: {primarySku?.defaultScopeLocations ?? 6}</span>
+              </label>
+              <input type="number" id="scopeLocations" name="scopeLocations" class="form-control" placeholder={String(primarySku?.defaultScopeLocations ?? 6)} />
+            </div>
+
+            <div class="form-group">
+              <label for="termMonths">
+                Term (Months)
+                <span class="badge-default">Default: {primarySku?.defaultTermMonths ?? 12}</span>
+              </label>
+              <input type="number" id="termMonths" name="termMonths" class="form-control" placeholder={String(primarySku?.defaultTermMonths ?? 12)} />
+            </div>
+
+            <div class="form-group">
+              <label for="proposedDiscountPct">
+                Proposed Discount %
+                <span class="badge-default">Default: {primarySku?.defaultProposedDiscountPct ?? "15.00"}%</span>
+              </label>
+              <input type="text" id="proposedDiscountPct" name="proposedDiscountPct" class="form-control" placeholder={primarySku?.defaultProposedDiscountPct ?? "15.00"} />
+            </div>
+
+            <div class="form-group">
+              <label for="destination">
+                Deployment Destination
+                <span class="badge-default">Default: {primarySku?.defaultDestination ?? "6 sites across US"}</span>
+              </label>
+              <input type="text" id="destination" name="destination" class="form-control" placeholder={primarySku?.defaultDestination ?? "6 sites across US"} />
+            </div>
+
+            <div class="form-group">
+              <label for="paymentTerms">
+                Payment Terms
+                <span class="badge-default">Default: {primarySku?.defaultPaymentTerms ?? "Net 30"}</span>
+              </label>
+              <input type="text" id="paymentTerms" name="paymentTerms" class="form-control" placeholder={primarySku?.defaultPaymentTerms ?? "Net 30"} />
+            </div>
+
+            <div class="form-group">
+              <label for="currency">
+                Currency
+                <span class="badge-required">USD Only</span>
+              </label>
+              <input type="text" id="currency" name="currency" class="form-control" value="USD" readonly style="background-color: #f1f5f9; cursor: not-allowed;" />
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" id="submit-btn" class="btn-primary">
+              Generate Quote & Price Deal
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("deal-form") as HTMLFormElement;
+      const errorContainer = document.getElementById("error-container") as HTMLDivElement;
+      const errorTitle = document.getElementById("error-title") as HTMLElement;
+      const errorList = document.getElementById("error-list") as HTMLUListElement;
+      const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+
+      form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Clear previous error states
+        errorContainer.style.display = "none";
+        errorList.innerHTML = "";
+        document.querySelectorAll(".form-control.is-invalid").forEach((el) => {
+          el.classList.remove("is-invalid");
+        });
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Pricing Deal...";
+
+        const formData = new FormData(form);
+        const payload: Record<string, any> = {};
+        formData.forEach((val, key) => {
+          if (val !== "") {
+            payload[key] = val;
+          }
+        });
+
+        try {
+          const res = await fetch("/api/request", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Generate Quote & Price Deal";
+
+            errorContainer.style.display = "block";
+            errorTitle.textContent = data.error?.message || "Quote release blocked.";
+
+            if (data.error?.fields && Array.isArray(data.error.fields)) {
+              data.error.fields.forEach((f: { field: string; code: string; message: string }) => {
+                const li = document.createElement("li");
+                li.innerHTML = `<strong>${f.field}</strong>: ${f.message} <span style="font-size: 0.75rem; color: #b91c1c;">(${f.code})</span>`;
+                errorList.appendChild(li);
+
+                const inputEl = document.getElementById(f.field);
+                if (inputEl) {
+                  inputEl.classList.add("is-invalid");
+                }
+              });
+            } else {
+              const li = document.createElement("li");
+              li.textContent = data.error?.message || "An unexpected error occurred.";
+              errorList.appendChild(li);
+            }
+            return;
+          }
+
+          if (data.redirectUrl) {
+            window.location.href = data.redirectUrl;
+          }
+        } catch (err: any) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Generate Quote & Price Deal";
+          errorContainer.style.display = "block";
+          errorTitle.textContent = "Network Error";
+          errorList.innerHTML = `<li>${err?.message || "Could not reach local server"}</li>`;
+        }
+      });
+    </script>
+  </body>
+</html>

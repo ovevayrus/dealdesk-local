@@ -1,0 +1,19 @@
+{
+  "name": "@dealdesk/viewer",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "start": "node ./dist/server/entry.mjs",
+    "test": "node --test test/**/*.test.ts",
+    "ingest": "node scripts/ingest.ts",
+    "reset": "node scripts/reset.ts"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9",
+    "astro": "^5",
+    "zod": "^4",
+    "@dealdesk/contracts": "workspace:*"
+  }
+}

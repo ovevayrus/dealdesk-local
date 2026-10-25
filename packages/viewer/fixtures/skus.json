@@ -1,0 +1,15 @@
+[
+  {
+    "sku": "DDX-RACK-100",
+    "name": "DealDesk Rack 100 System",
+    "description": "Enterprise rack hardware and managed support bundle",
+    "listPrice": "160000.00",
+    "currency": "USD",
+    "defaultQuantity": 100,
+    "defaultScopeLocations": 6,
+    "defaultTermMonths": 12,
+    "defaultPaymentTerms": "Net 30",
+    "defaultDestination": "6 sites across US",
+    "defaultProposedDiscountPct": "15.00"
+  }
+]

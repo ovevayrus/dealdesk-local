@@ -1,0 +1,5 @@
+[
+  { "userId": "u-sofia",  "role": "seller",   "accountIds": ["ACME-7"] },
+  { "userId": "u-dana",   "role": "manager",  "accountIds": ["ACME-7", "NORTHWIND-2"] },
+  { "userId": "u-admin",  "role": "admin",    "accountIds": ["*"] }
+]

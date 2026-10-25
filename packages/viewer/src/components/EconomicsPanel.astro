@@ -1,0 +1,210 @@
+---
+import type { Economics } from "@dealdesk/contracts";
+
+interface Props {
+  economics: Economics;
+  quoteId: string;
+  version: number;
+  scenario?: "base" | "shock";
+}
+
+const { economics, quoteId, version, scenario = "base" } = Astro.props;
+const isBlocked = economics.warnings.some((warning) => warning.severity === "block");
+---
+
+<div class="panel economics-panel" id="economics-panel" data-quote-id={quoteId} data-version={version}>
+  <h2>Economics & Sensitivity</h2>
+
+  <!-- Warnings List -->
+  {economics.warnings.length > 0 && (
+    <div class="warnings-container">
+      {economics.warnings.map((w) => (
+        <div class={`warning-box ${w.severity}`}>
+          <strong>[{w.severity.toUpperCase()}] {w.code}:</strong> {w.message}
+        </div>
+      ))}
+    </div>
+  )}
+
+  <!-- Sensitivity Controls per Section 11 -->
+  <div class="sensitivity-controls" style="background: #f1f5f9; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-end;">
+    <div style="flex: 1;">
+      <label for="scenario-select" style="display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem;">
+        Scenario:
+      </label>
+      <select id="scenario-select" style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.85rem;">
+        <option value="base" selected={scenario === "base"}>Base Case</option>
+        <option value="shock" selected={scenario === "shock"}>Supplier Shock (+8% cost)</option>
+      </select>
+    </div>
+    <div style="flex: 1;">
+      <label for="supplier-delta-input" style="display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem;">
+        Supplier Cost Delta (%):
+      </label>
+      <input
+        type="number"
+        id="supplier-delta-input"
+        step="0.5"
+        min="-20"
+        max="20"
+        value="0.00"
+        style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.85rem;"
+      />
+    </div>
+    <div>
+      <button id="reprice-btn" type="button" style="padding: 0.45rem 0.85rem; background: var(--primary); color: white; border: none; border-radius: 4px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
+        Reprice Deal
+      </button>
+    </div>
+  </div>
+
+  <p id="reprice-error" role="alert" hidden style="color: var(--danger);"></p>
+
+  <!-- Cost Breakdown Ledger -->
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Cost Item</th>
+        <th class="numeric">Expected ({economics.currency})</th>
+        <th class="numeric">Stress ({economics.currency})</th>
+      </tr>
+    </thead>
+    <tbody>
+      {economics.costs.map((c) => (
+        <tr>
+          <td>{c.label}</td>
+          <td class="numeric">${c.expected}</td>
+          <td class="numeric">${c.stress}</td>
+        </tr>
+      ))}
+      <tr style="font-weight: 600; border-top: 2px solid var(--border-color);">
+        <td>Total Cost Basis</td>
+        <td class="numeric">${economics.baseCostTotal}</td>
+        <td class="numeric">${economics.stressCostTotal}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Margins & Policy Bounds -->
+  <table class="data-table">
+    <tbody>
+      <tr>
+        <td>Gross Margin (Base Case)</td>
+        <td class="numeric"><strong>{economics.grossMargin}%</strong></td>
+      </tr>
+      <tr>
+        <td>Stress Margin</td>
+        <td class="numeric">
+          <strong style={`color: ${isBlocked ? 'var(--danger)' : 'var(--success)'};`}>
+            {economics.stressMargin}%
+          </strong>
+        </td>
+      </tr>
+      <tr>
+        <td>Policy Margin Floor</td>
+        <td class="numeric">{economics.marginFloor}%</td>
+      </tr>
+      <tr>
+        <td>Min Acceptable Price</td>
+        <td class="numeric">${economics.minAcceptablePrice}</td>
+      </tr>
+      <tr>
+        <td>Recommended Price</td>
+        <td class="numeric">${economics.recommendedPrice}</td>
+      </tr>
+      <tr>
+        <td>Feasible Range</td>
+        <td class="numeric">${economics.feasibleRange.low} – ${economics.feasibleRange.high}</td>
+      </tr>
+      <tr>
+        <td>Data Feed Version</td>
+        <td class="numeric"><code>{economics.dataVersion}</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script is:inline>
+    // Navigate to the saved version so every panel uses the same immutable quote.
+    (function () {
+      const panel = document.getElementById("economics-panel");
+      if (!panel) return;
+      const repriceBtn = document.getElementById("reprice-btn");
+      const scenarioSelect = document.getElementById("scenario-select");
+      const deltaInput = document.getElementById("supplier-delta-input");
+      const errorBox = document.getElementById("reprice-error");
+      let pending = false;
+
+      async function triggerReprice() {
+        if (!repriceBtn || pending) return;
+        pending = true;
+        repriceBtn.disabled = true;
+        repriceBtn.textContent = "Pricing...";
+        if (scenarioSelect) scenarioSelect.disabled = true;
+        if (deltaInput) deltaInput.disabled = true;
+        if (errorBox) {
+          errorBox.hidden = true;
+          errorBox.textContent = "";
+        }
+
+        try {
+          const quoteId = panel.dataset.quoteId;
+          const scenario = scenarioSelect ? scenarioSelect.value : "base";
+          const delta = deltaInput && deltaInput.value ? String(deltaInput.value) : "0.00";
+
+          const response = await fetch("/api/quote", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              quoteId: quoteId,
+              scenario: scenario,
+              supplierCostDeltaPct: delta,
+              freightRateDeltaPct: "0.00"
+            })
+          });
+
+          if (!response.ok) {
+            let message = "Reprice failed (HTTP " + response.status + ").";
+            try {
+              const payload = await response.json();
+              if (typeof payload.error?.message === "string") message = payload.error.message;
+            } catch {
+              // Keep a useful message if the server did not return JSON.
+            }
+            throw new Error(message);
+          }
+
+          const newVersion = response.headers.get("X-Quote-Version");
+          if (!newVersion || !/^[1-9]\d*$/.test(newVersion)) {
+            throw new Error("Pricing returned no valid quote version. Reload the quote to review its history.");
+          }
+          const nextUrl = new URL(window.location.href);
+          nextUrl.pathname = "/quote/" + encodeURIComponent(quoteId);
+          nextUrl.searchParams.delete("version");
+          nextUrl.searchParams.set("v", newVersion);
+          nextUrl.hash = "";
+          window.location.assign(nextUrl.href);
+        } catch (err) {
+          if (errorBox) {
+            errorBox.textContent = err instanceof Error ? err.message : "Reprice request failed. Try again.";
+            errorBox.hidden = false;
+          }
+        } finally {
+          pending = false;
+          if (repriceBtn) {
+            repriceBtn.disabled = false;
+            repriceBtn.textContent = "Reprice Deal";
+          }
+          if (scenarioSelect) scenarioSelect.disabled = false;
+          if (deltaInput) deltaInput.disabled = false;
+        }
+      }
+
+      if (repriceBtn) {
+        repriceBtn.addEventListener("click", triggerReprice);
+      }
+      if (scenarioSelect) {
+        scenarioSelect.addEventListener("change", triggerReprice);
+      }
+    })();
+  </script>
+</div>

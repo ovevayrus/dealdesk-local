@@ -1,0 +1,30 @@
+{
+  "currency": "USD",
+  "listPrice": "160000.00",
+  "totalContractValue": "136000.00",
+  "upfront": "112000.00",
+  "recurring": "24000.00",
+  "discountPct": "15.00",
+  "costs": [
+    { "label": "Hardware, 100 units",     "expected": "60000.00", "stress": "73000.00", "unit": "USD" },
+    { "label": "Freight, two shipments",  "expected": "2000.00",  "stress": "3400.00",  "unit": "USD" },
+    { "label": "Installation",            "expected": "4000.00",  "stress": "4000.00",  "unit": "USD" },
+    { "label": "Service, twelve months",  "expected": "24000.00", "stress": "25200.00", "unit": "USD" }
+  ],
+  "baseCostTotal": "90000.00",
+  "stressCostTotal": "105600.00",
+  "grossMargin": "33.82",
+  "stressMargin": "22.35",
+  "marginFloor": "25.00",
+  "minAcceptablePrice": "140800.00",
+  "recommendedPrice": "144000.00",
+  "feasibleRange": { "low": "140800.00", "high": "160000.00" },
+  "warnings": [
+    { "code": "BELOW_ECONOMIC_FLOOR", "message": "Updated supplier costs put this quote below the 25% stress-margin floor. A fresh quote version and approval are required.", "severity": "block" }
+  ],
+  "assumptions": [
+    "Taxes, FX, financing, returns, and working-capital effects are excluded.",
+    "Twelve-month service term, one known payment schedule, USD only."
+  ],
+  "dataVersion": "feed-2026-10-25-b"
+}
