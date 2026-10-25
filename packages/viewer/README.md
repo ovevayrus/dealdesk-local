@@ -47,4 +47,15 @@ pnpm --filter viewer reset
 
 DealDesk Local operates 100% offline with zero external network calls beyond `127.0.0.1`. Document search runs BM25 full-text retrieval directly inside SQLite via `node:sqlite` FTS5. Deal pricing is computed deterministically from a dedicated pricing module (`PRICING_MODE=fixture` for offline reference figures or a local service on port 8001). Local LLMs (Ollama / vLLM on port 8000) are called strictly for optional citation annotation and customer-facing narrative drafting, with deterministic template fallbacks when offline (`MODEL_MODE=off`). Internal costs, margins, and policy floors are strictly enforced server-side and never leaked into customer previews or browser scripts. Money values are transferred as exact decimal strings with zero floating-point arithmetic.
 
+## Verifying the offline claim
+
+`start:offline` runs the production server with every non-loopback TCP connect, DNS lookup and `fetch` blocked at the Node level, so the local-first claim is proven by the process refusing egress rather than by inspection.
+
+```bash
+pnpm --filter viewer build
+pnpm --filter viewer start:offline
+```
+
+Exercise the demo path, then stop the server. Any attempted egress prints `[egress-guard] BLOCKED <kind> -> <target>` immediately, and the process reports a violation count on shutdown.
+
 *Note: All data, company names, and figures in `fixtures/` are completely synthetic.*

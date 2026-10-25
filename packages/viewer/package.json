@@ -8,12 +8,16 @@
     "start": "node ./dist/server/entry.mjs",
     "test": "node --test test/**/*.test.ts",
     "ingest": "node scripts/ingest.ts",
-    "reset": "node scripts/reset.ts"
+    "reset": "node scripts/reset.ts",
+    "start:offline": "node --import ./scripts/egress-guard.mjs ./dist/server/entry.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^9",
     "astro": "^5",
     "zod": "^4",
     "@dealdesk/contracts": "workspace:*"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }
