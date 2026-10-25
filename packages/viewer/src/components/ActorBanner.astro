@@ -1,0 +1,28 @@
+---
+import { getActor, getActors } from "../lib/session.ts";
+
+const actor = getActor(Astro.request);
+const allActors = getActors();
+const currentUrl = Astro.url;
+---
+
+<div class="actor-banner">
+  <div>
+    Active Session: <strong>{actor.userId}</strong> ({actor.role}) &bull; Authorized Accounts: {actor.accountIds.join(", ")}
+  </div>
+  <div class="role-switch">
+    Switch role:
+    {allActors.map((a) => {
+      const switchUrl = new URL(currentUrl);
+      switchUrl.searchParams.set("actor", a.userId);
+      return (
+        <a
+          href={switchUrl.pathname + switchUrl.search}
+          style={a.userId === actor.userId ? "font-weight: 700; text-decoration: underline;" : ""}
+        >
+          {a.userId} ({a.role})
+        </a>
+      );
+    })}
+  </div>
+</div>

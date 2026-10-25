@@ -1,0 +1,143 @@
+---
+import "../../styles/app.css";
+import { randomUUID } from "node:crypto";
+import { getDb } from "../../lib/db.ts";
+import { getActor, checkAccountScope } from "../../lib/session.ts";
+import { hydrateEvidence } from "../../lib/retrieval.ts";
+import ActorBanner from "../../components/ActorBanner.astro";
+import EvidencePanel from "../../components/EvidencePanel.astro";
+import OfferPanel from "../../components/OfferPanel.astro";
+import EconomicsPanel from "../../components/EconomicsPanel.astro";
+import ActionsPanel from "../../components/ActionsPanel.astro";
+import type { QuoteVersion } from "@dealdesk/contracts";
+
+const { id } = Astro.params;
+const url = new URL(Astro.request.url);
+
+// Role switcher handling
+const actorQuery = url.searchParams.get("actor");
+if (actorQuery) {
+  Astro.cookies.set("dd_actor", actorQuery, { path: "/", httpOnly: false });
+  url.searchParams.delete("actor");
+  return Astro.redirect(url.pathname + (url.search ? url.search : ""));
+}
+
+const actor = getActor(Astro.request);
+const db = getDb();
+
+const versionQuery = url.searchParams.get("v") || url.searchParams.get("version");
+if (versionQuery && (!/^[1-9]\d*$/.test(versionQuery) || !Number.isSafeInteger(Number(versionQuery)))) {
+  return new Response("Invalid quote version", { status: 400 });
+}
+const row = versionQuery
+  ? (db.prepare(`
+      SELECT quote_id, version, payload, created_at
+      FROM quote_versions
+      WHERE quote_id = ? AND version = ?
+    `).get(id, parseInt(versionQuery, 10)) as any)
+  : (db.prepare(`
+      SELECT quote_id, version, payload, created_at
+      FROM quote_versions
+      WHERE quote_id = ?
+      ORDER BY version DESC
+      LIMIT 1
+    `).get(id) as any);
+
+if (!row) {
+  return new Response(`Quote ${id} not found`, { status: 404 });
+}
+
+const quoteVersion: QuoteVersion = JSON.parse(row.payload);
+
+// Get all versions for this quote for the version switcher
+const allVersions = (db.prepare(`
+  SELECT version, created_at
+  FROM quote_versions
+  WHERE quote_id = ?
+  ORDER BY version ASC
+`).all(id) as any[]).map((r) => r.version);
+
+// Authorize the quote itself per Spec 02 Fix 1
+if (!checkAccountScope(actor, quoteVersion.request.accountId)) {
+  const runId = `r-${randomUUID()}`;
+  return new Response(
+    JSON.stringify({
+      runId,
+      error: {
+        code: "FORBIDDEN_ACCOUNT",
+        message: `Actor ${actor.userId} is not authorized to access quote for account ${quoteVersion.request.accountId}.`,
+      },
+    }),
+    {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+}
+
+// Hydrate evidence passing the actor to enforce classification authorization in SQL
+const hydratedEvidence = hydrateEvidence(quoteVersion.evidence, actor, quoteVersion.request.accountId);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quote {quoteVersion.quoteId} v{quoteVersion.version} — DealDesk Local</title>
+  </head>
+  <body>
+    <div class="container">
+      <ActorBanner />
+
+      <div class="header">
+        <div>
+          <div style="margin-bottom: 0.25rem;">
+            <a href="/" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">&larr; Back to Deal Intake</a>
+          </div>
+          <h1>Deal Pack: {quoteVersion.quoteId} (v{quoteVersion.version})</h1>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">
+            Account: <strong>{quoteVersion.request.accountId}</strong> &bull; Deal: {quoteVersion.request.dealId} &bull; Created: {quoteVersion.createdAt}
+          </p>
+          {allVersions.length > 1 && (
+            <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+              <strong>Versions:</strong>
+              {allVersions.map((v) => (
+                <a
+                  href={`/quote/${quoteVersion.quoteId}?v=${v}`}
+                  style={`margin-left: 0.5rem; padding: 0.15rem 0.5rem; border-radius: 4px; text-decoration: none; font-weight: 600; ${
+                    v === quoteVersion.version
+                      ? "background: #0f172a; color: white;"
+                      : "background: #e2e8f0; color: #334155;"
+                  }`}
+                >
+                  v{v}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+        <div style="text-align: right;">
+          <div style="margin-bottom: 0.5rem;">
+            <a
+              href={`/preview/${quoteVersion.quoteId}?v=${quoteVersion.version}`}
+              style="padding: 0.4rem 0.75rem; background: #e0f2fe; color: #0284c7; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 0.85rem;"
+            >
+              Customer Proposal Preview &rarr;
+            </a>
+          </div>
+          <span class={`badge`} style={`background-color: ${quoteVersion.approval.state === 'approved' ? 'var(--success)' : 'var(--warning)'}; color: white;`}>
+            Status: {quoteVersion.approval.state} (v{quoteVersion.version})
+          </span>
+        </div>
+      </div>
+
+      <div class="panels-grid">
+        <OfferPanel quoteVersion={quoteVersion} />
+        <EconomicsPanel economics={quoteVersion.economics} quoteId={quoteVersion.quoteId} version={quoteVersion.version} scenario={quoteVersion.forecastVersion === "shock" ? "shock" : "base"} />
+        <EvidencePanel evidence={hydratedEvidence} />
+        <ActionsPanel quoteId={quoteVersion.quoteId} version={quoteVersion.version} />
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,58 @@
+---
+import type { QuoteVersion } from "@dealdesk/contracts";
+
+interface Props {
+  quoteVersion: QuoteVersion;
+}
+
+const { quoteVersion } = Astro.props;
+const { economics, request, approval } = quoteVersion;
+---
+
+<div class="panel offer-panel" id="offer-panel">
+  <h2>Offer Summary</h2>
+  <table class="data-table">
+    <tbody>
+      <tr>
+        <td>Total Contract Value</td>
+        <td class="numeric"><strong>${economics.totalContractValue}</strong></td>
+      </tr>
+      <tr>
+        <td>List Price</td>
+        <td class="numeric">${economics.listPrice}</td>
+      </tr>
+      <tr>
+        <td>Discount</td>
+        <td class="numeric">{economics.discountPct}%</td>
+      </tr>
+      <tr>
+        <td>Upfront Commitment</td>
+        <td class="numeric">${economics.upfront}</td>
+      </tr>
+      <tr>
+        <td>Recurring (12 mo)</td>
+        <td class="numeric">${economics.recurring}</td>
+      </tr>
+      <tr>
+        <td>Scope & Sites</td>
+        <td class="numeric">{request.scopeLocations} locations &bull; {request.quantity} units</td>
+      </tr>
+      <tr>
+        <td>Term & Payment</td>
+        <td class="numeric">{request.termMonths} months &bull; {request.paymentTerms}</td>
+      </tr>
+      <tr>
+        <td>Validity Date</td>
+        <td class="numeric">{request.quoteExpiry}</td>
+      </tr>
+      <tr>
+        <td>Approval Status</td>
+        <td class="numeric">
+          <span class={`badge`} style={`background-color: ${approval.state === 'approved' ? 'var(--success)' : 'var(--warning)'}; color: white;`}>
+            {approval.state.toUpperCase()} (bound to v{quoteVersion.version})
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
