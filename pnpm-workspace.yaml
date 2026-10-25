@@ -3,3 +3,5 @@ packages:
 allowBuilds:
   esbuild: true
   sharp: true
+# Purge node_modules without an interactive prompt, for non-TTY shells and CI.
+confirmModulesPurge: false

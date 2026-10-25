@@ -46,3 +46,4 @@ packages/*/dist/
 hackathon-prep-guide.html
 team-brief-dealdesk.html
 notes/
+.playwright-cli/
