@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Start Qwen3.6-35B-A3B-NVFP4 on vLLM, local only (127.0.0.1:8001; the DealDesk app owns 8000).
+# Flags from ~/models/hackathon/vllm-flags.txt (NVIDIA NemoClaw settings).
+set -euo pipefail
+
+HUB=/home/dell/models/hackathon/hf-cache/hub
+SNAP=/models/models--nvidia--Qwen3.6-35B-A3B-NVFP4/snapshots/1355db6a052410cfd62085d94b58866fd0f2c3c5
+
+docker rm -f vllm-qwen 2>/dev/null || true
+docker run -d --name vllm-qwen \
+  --restart unless-stopped \
+  --device nvidia.com/gpu=all \
+  --ipc=host \
+  -p 127.0.0.1:8001:8000 \
+  -v "$HUB":/models:ro \
+  -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 \
+  -e VLLM_USE_FLASHINFER_MOE_FP4=0 \
+  -e VLLM_FP8_MOE_BACKEND=flashinfer_cutlass \
+  -e FLASHINFER_DISABLE_VERSION_CHECK=1 \
+  -e CUTE_DSL_ARCH=sm_121a \
+  nvcr.io/nvidia/vllm:26.05.post1-py3 \
+  vllm serve "$SNAP" \
+    --served-model-name qwen3.6-35b-a3b nvidia/Qwen3.6-35B-A3B-NVFP4 \
+    --host 0.0.0.0 --port 8000 \
+    --tensor-parallel-size 1 \
+    --pipeline-parallel-size 1 \
+    --data-parallel-size 1 \
+    --trust-remote-code \
+    --max-model-len 131072 \
+    --gpu-memory-utilization 0.7 \
+    --dtype auto \
+    --quantization modelopt \
+    --kv-cache-dtype fp8 \
+    --attention-backend flashinfer \
+    --moe-backend marlin \
+    --max-num-seqs 4 \
+    --max-num-batched-tokens 8192 \
+    --enable-chunked-prefill \
+    --async-scheduling \
+    --enable-prefix-caching \
+    --enable-auto-tool-choice \
+    --tool-call-parser qwen3_coder \
+    --reasoning-parser qwen3 \
+    --speculative-config '{"method":"mtp","num_speculative_tokens":3,"moe_backend":"triton"}' \
+    --load-format fastsafetensors

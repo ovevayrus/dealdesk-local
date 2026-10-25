@@ -344,3 +344,34 @@ def test_local_model_redirects_are_refused(settings):
         assert status["reachable"] is False and "redirects are refused" in status["detail"]
     finally:
         server.shutdown()
+
+
+def test_local_model_chat_disables_thinking(settings):
+    import http.server
+    import threading
+
+    received = {}
+
+    class Completions(http.server.BaseHTTPRequestHandler):
+        def do_POST(self):
+            received.update(json.loads(self.rfile.read(int(self.headers["Content-Length"]))))
+            body = json.dumps({"choices": [{"message": {"content": "Director approval required."}}]}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    server = http.server.HTTPServer(("127.0.0.1", 0), Completions)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        settings.mode, settings.llm_model = LOCAL_MODEL, "m"
+        settings.llm_base_url = f"http://127.0.0.1:{server.server_port}/v1"
+        assert llm.chat(settings, "s", "u") == "Director approval required."
+        assert received["chat_template_kwargs"] == {"enable_thinking": False}
+    finally:
+        server.shutdown()

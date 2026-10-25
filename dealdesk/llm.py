@@ -71,6 +71,8 @@ def chat(settings: Settings, system: str, user: str, max_tokens: int = 350) -> s
         "temperature": 0.1,
         "max_tokens": max_tokens,
         "stream": False,
+        # Reasoning models (e.g. Qwen3 on vLLM) otherwise spend the token budget thinking and return no content.
+        "chat_template_kwargs": {"enable_thinking": False},
     })
     try:
         text = response["choices"][0]["message"]["content"]
