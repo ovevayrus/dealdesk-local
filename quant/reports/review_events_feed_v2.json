@@ -1,0 +1,265 @@
+{
+  "feed_version": "v2",
+  "feed_hash": "sha256:6445aa8f50fb9e32",
+  "events": [
+    {
+      "event_type": "quote_review_required",
+      "severity": "breach",
+      "quote_id": "Q-1001",
+      "quote_version": 1,
+      "quote_hash": "sha256:87ee71d03b843fe7",
+      "account_id": "ACC-NORTHWIND",
+      "price": "136000.00",
+      "previous": {
+        "stress_cost": "97600.00",
+        "stress_margin_pct": "28.24",
+        "economic_floor": "130133.34",
+        "feed_version": "v1"
+      },
+      "new": {
+        "stress_cost": "105600.00",
+        "stress_margin_pct": "22.35",
+        "economic_floor": "140800.00",
+        "feed_version": "v2"
+      },
+      "changed_lines": [
+        {
+          "line_id": "hardware:2026-11",
+          "series_id": "hardware_unit:EDGE-100",
+          "month": "2026-11",
+          "quantity": "100",
+          "unit_cost_base": [
+            "600.00",
+            "600.00"
+          ],
+          "unit_cost_stress": [
+            "660.00",
+            "740.00"
+          ],
+          "stress_delta": "8000.00",
+          "source": "supplier_notice:SUP-ALTA-2026-10-24 (component shortage; adjustment cap raised for Nov and Dec 2026 deliveries)"
+        }
+      ],
+      "original_offer_preserved": true,
+      "original_approval_preserved": {
+        "actor": "director:dana.lee",
+        "role": "director",
+        "exception": "discount 15.00%",
+        "approved_at": "2026-10-25T10:42:00-07:00",
+        "expires": "2026-11-24",
+        "quote_hash": "sha256:87ee71d03b843fe7",
+        "quote_version": 1
+      },
+      "approval_still_valid_for_original": true,
+      "requires_new_version": true,
+      "dedup_key": "sha256:bec11b653ca34ef3",
+      "recommended_responses": [
+        {
+          "option": "reprice_to_new_floor",
+          "price": "140800.00",
+          "price_change": "4800.00",
+          "discount_pct": "12.00",
+          "stress_margin_pct": "25.00",
+          "required_approval": "director",
+          "note": "Lowest price that meets policy under the new feed. Needs a new version and approval."
+        },
+        {
+          "option": "phase_first_shipment",
+          "quantity": 50,
+          "price": "72000.00",
+          "discount_pct": "10.00",
+          "stress_margin_pct": "26.67",
+          "required_approval": "rep",
+          "note": "Commit the first shipment now; quote the remainder when supply costs settle."
+        },
+        {
+          "option": "hardware_cost_adjustment_clause",
+          "keep_price": "136000.00",
+          "max_hardware_stress_per_unit_at_this_price": "704.00",
+          "note": "Keep the price but pass hardware cost above this level through to the customer. Nonstandard clause: needs finance and legal review."
+        }
+      ],
+      "summary": "Quote Q-1001 v1 at 136000.00: stress cost moved from 97600.00 to 105600.00 (hardware_unit:EDGE-100; 2026-11). Stress margin 28.24% -> 22.35%. Below the 25.00% policy minimum. New economic floor 140800.00. The sent offer and its approval are unchanged; revised terms need a new quote version and a fresh approval."
+    },
+    {
+      "event_type": "quote_cost_changed",
+      "severity": "info",
+      "quote_id": "Q-1002",
+      "quote_version": 1,
+      "quote_hash": "sha256:84e859c292bceff9",
+      "account_id": "ACC-BLUEPEAK",
+      "price": "144000.00",
+      "previous": {
+        "stress_cost": "97600.00",
+        "stress_margin_pct": "32.22",
+        "economic_floor": "130133.34",
+        "feed_version": "v1"
+      },
+      "new": {
+        "stress_cost": "105600.00",
+        "stress_margin_pct": "26.67",
+        "economic_floor": "140800.00",
+        "feed_version": "v2"
+      },
+      "changed_lines": [
+        {
+          "line_id": "hardware:2026-11",
+          "series_id": "hardware_unit:EDGE-100",
+          "month": "2026-11",
+          "quantity": "100",
+          "unit_cost_base": [
+            "600.00",
+            "600.00"
+          ],
+          "unit_cost_stress": [
+            "660.00",
+            "740.00"
+          ],
+          "stress_delta": "8000.00",
+          "source": "supplier_notice:SUP-ALTA-2026-10-24 (component shortage; adjustment cap raised for Nov and Dec 2026 deliveries)"
+        }
+      ],
+      "original_offer_preserved": true,
+      "original_approval_preserved": null,
+      "approval_still_valid_for_original": true,
+      "requires_new_version": false,
+      "dedup_key": "sha256:7d60b63ca015b425",
+      "recommended_responses": [],
+      "summary": "Quote Q-1002 v1 at 144000.00: stress cost moved from 97600.00 to 105600.00 (hardware_unit:EDGE-100; 2026-11). Stress margin 32.22% -> 26.67%."
+    },
+    {
+      "event_type": "quote_cost_changed",
+      "severity": "info",
+      "quote_id": "Q-1003",
+      "quote_version": 1,
+      "quote_hash": "sha256:b72b205dc6b134fb",
+      "account_id": "ACC-CEDAR",
+      "price": "76000.00",
+      "previous": {
+        "stress_cost": "48800.00",
+        "stress_margin_pct": "35.79",
+        "economic_floor": "65066.67",
+        "feed_version": "v1"
+      },
+      "new": {
+        "stress_cost": "52800.00",
+        "stress_margin_pct": "30.53",
+        "economic_floor": "70400.00",
+        "feed_version": "v2"
+      },
+      "changed_lines": [
+        {
+          "line_id": "hardware:2026-12",
+          "series_id": "hardware_unit:EDGE-100",
+          "month": "2026-12",
+          "quantity": "50",
+          "unit_cost_base": [
+            "600.00",
+            "600.00"
+          ],
+          "unit_cost_stress": [
+            "660.00",
+            "740.00"
+          ],
+          "stress_delta": "4000.00",
+          "source": "supplier_notice:SUP-ALTA-2026-10-24 (component shortage; adjustment cap raised for Nov and Dec 2026 deliveries)"
+        }
+      ],
+      "original_offer_preserved": true,
+      "original_approval_preserved": null,
+      "approval_still_valid_for_original": true,
+      "requires_new_version": false,
+      "dedup_key": "sha256:7546fcce4ab3b469",
+      "recommended_responses": [],
+      "summary": "Quote Q-1003 v1 at 76000.00: stress cost moved from 48800.00 to 52800.00 (hardware_unit:EDGE-100; 2026-12). Stress margin 35.79% -> 30.53%."
+    },
+    {
+      "event_type": "quote_review_required",
+      "severity": "breach",
+      "quote_id": "Q-1005",
+      "quote_version": 1,
+      "quote_hash": "sha256:2634101423851240",
+      "account_id": "ACC-CEDAR",
+      "price": "104960.00",
+      "previous": {
+        "stress_cost": "78560.00",
+        "stress_margin_pct": "25.15",
+        "economic_floor": "104746.67",
+        "feed_version": "v1"
+      },
+      "new": {
+        "stress_cost": "84960.00",
+        "stress_margin_pct": "19.05",
+        "economic_floor": "113280.00",
+        "feed_version": "v2"
+      },
+      "changed_lines": [
+        {
+          "line_id": "hardware:2026-12",
+          "series_id": "hardware_unit:EDGE-100",
+          "month": "2026-12",
+          "quantity": "80",
+          "unit_cost_base": [
+            "600.00",
+            "600.00"
+          ],
+          "unit_cost_stress": [
+            "660.00",
+            "740.00"
+          ],
+          "stress_delta": "6400.00",
+          "source": "supplier_notice:SUP-ALTA-2026-10-24 (component shortage; adjustment cap raised for Nov and Dec 2026 deliveries)"
+        }
+      ],
+      "original_offer_preserved": true,
+      "original_approval_preserved": {
+        "actor": "director:dana.lee",
+        "role": "director",
+        "exception": "discount 18.00%",
+        "approved_at": "2026-10-20T15:10:00-07:00",
+        "expires": "2026-11-19",
+        "quote_hash": "sha256:2634101423851240",
+        "quote_version": 1
+      },
+      "approval_still_valid_for_original": true,
+      "requires_new_version": true,
+      "dedup_key": "sha256:4d6409eb49868ce3",
+      "recommended_responses": [
+        {
+          "option": "reprice_to_new_floor",
+          "price": "113280.00",
+          "price_change": "8320.00",
+          "discount_pct": "11.50",
+          "stress_margin_pct": "25.00",
+          "required_approval": "director",
+          "note": "Lowest price that meets policy under the new feed. Needs a new version and approval."
+        },
+        {
+          "option": "phase_first_shipment",
+          "quantity": 40,
+          "price": "57600.00",
+          "discount_pct": "10.00",
+          "stress_margin_pct": "26.25",
+          "required_approval": "rep",
+          "note": "Commit the first shipment now; quote the remainder when supply costs settle."
+        },
+        {
+          "option": "hardware_cost_adjustment_clause",
+          "keep_price": "104960.00",
+          "max_hardware_stress_per_unit_at_this_price": "662.00",
+          "note": "Keep the price but pass hardware cost above this level through to the customer. Nonstandard clause: needs finance and legal review."
+        }
+      ],
+      "summary": "Quote Q-1005 v1 at 104960.00: stress cost moved from 78560.00 to 84960.00 (hardware_unit:EDGE-100; 2026-12). Stress margin 25.15% -> 19.05%. Below the 25.00% policy minimum. New economic floor 113280.00. The sent offer and its approval are unchanged; revised terms need a new quote version and a fresh approval."
+    }
+  ],
+  "unaffected_quotes": [
+    "Q-1004"
+  ],
+  "counts": {
+    "checked": 5,
+    "breach": 2,
+    "info": 2,
+    "unaffected": 1
+  }
+}

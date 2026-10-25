@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "notice": "SYNTHETIC DEMO DATA. Not real supplier or freight prices.",
+  "seed": 20261025,
+  "as_of": "2026-10-01",
+  "first_month": "2023-10",
+  "months": 36,
+  "series": {
+    "hardware_unit:EDGE-100": {
+      "file": "hardware_unit_cost.csv",
+      "unit": "USD/unit",
+      "last_month": "2026-09",
+      "data_version": "sha256:967b3859bf273b12"
+    },
+    "freight_shipment:LANE-OAK-PHX": {
+      "file": "freight_lane_cost.csv",
+      "unit": "USD/shipment",
+      "last_month": "2026-09",
+      "data_version": "sha256:f298c1dabc456a60"
+    }
+  }
+}
