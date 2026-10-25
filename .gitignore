@@ -11,6 +11,7 @@ secrets.json
 data/private/
 data/raw/
 data/internal/
+data/runtime/
 private/
 internal/
 sensitive/
