@@ -5,6 +5,8 @@ import { getDb } from "../../lib/db.ts";
 import { getActor, getActors, checkAccountScope } from "../../lib/session.ts";
 import { hydrateEvidence } from "../../lib/retrieval.ts";
 import EvidencePanel from "../../components/EvidencePanel.astro";
+import OfferPanel from "../../components/OfferPanel.astro";
+import EconomicsPanel from "../../components/EconomicsPanel.astro";
 import type { QuoteVersion } from "@dealdesk/contracts";
 
 const { id } = Astro.params;
@@ -99,45 +101,9 @@ const hydratedEvidence = hydrateEvidence(quoteVersion.evidence, actor);
       </div>
 
       <div class="panels-grid">
-        <!-- Step 5 Milestone Evidence Panel -->
+        <OfferPanel quoteVersion={quoteVersion} />
+        <EconomicsPanel economics={quoteVersion.economics} quoteId={quoteVersion.quoteId} version={quoteVersion.version} />
         <EvidencePanel evidence={hydratedEvidence} />
-
-        <!-- Seed Deal Overview -->
-        <div class="panel">
-          <h2>Offer Overview</h2>
-          <table class="data-table">
-            <tbody>
-              <tr>
-                <td>Total Contract Value</td>
-                <td class="numeric"><strong>${quoteVersion.economics.totalContractValue}</strong></td>
-              </tr>
-              <tr>
-                <td>List Price</td>
-                <td class="numeric">${quoteVersion.economics.listPrice}</td>
-              </tr>
-              <tr>
-                <td>Discount</td>
-                <td class="numeric">{quoteVersion.economics.discountPct}%</td>
-              </tr>
-              <tr>
-                <td>Upfront / Recurring</td>
-                <td class="numeric">${quoteVersion.economics.upfront} / ${quoteVersion.economics.recurring}</td>
-              </tr>
-              <tr>
-                <td>Quantity & SKU</td>
-                <td class="numeric">{quoteVersion.request.quantity} units &bull; {quoteVersion.request.sku}</td>
-              </tr>
-              <tr>
-                <td>Scope & Term</td>
-                <td class="numeric">{quoteVersion.request.scopeLocations} locations &bull; {quoteVersion.request.termMonths} months</td>
-              </tr>
-              <tr>
-                <td>Validity Date</td>
-                <td class="numeric">{quoteVersion.request.quoteExpiry}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
   </body>
