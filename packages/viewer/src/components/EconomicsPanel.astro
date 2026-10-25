@@ -9,7 +9,12 @@ interface Props {
 }
 
 const { economics, quoteId, version, scenario = "base" } = Astro.props;
-const isBlocked = economics.warnings.some((warning) => warning.severity === "block");
+// Red on an explicit block warning or on a floor breach, so a low margin cannot
+// render green just because the pricing service emitted no warning. Comparison is
+// presentational only: no computed figure is ever displayed.
+const breachesFloor = Number(economics.stressMargin) < Number(economics.marginFloor);
+const isBlocked =
+  economics.warnings.some((warning) => warning.severity === "block") || breachesFloor;
 ---
 
 <div class="panel economics-panel" id="economics-panel" data-quote-id={quoteId} data-version={version}>

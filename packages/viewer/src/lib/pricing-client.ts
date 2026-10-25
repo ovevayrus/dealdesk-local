@@ -87,14 +87,8 @@ export async function priceDeal(params: PriceDealRequest): Promise<Economics> {
     }
   }
 
-  // Fallback to fixture if unreachable at startup
-  const isShock = params.scenario === "shock";
-  const fallbackFile = resolve(root, "packages/viewer/fixtures", isShock ? "price-deal.shock.json" : "price-deal.base.json");
-  if (existsSync(fallbackFile)) {
-    const raw = readFileSync(fallbackFile, "utf-8");
-    return EconomicsSchema.parse(JSON.parse(raw));
-  }
-
+  // Never substitute reference fixtures for a failed live call: those figures
+  // would be persisted as an immutable quote version for an unrelated deal.
   throw new PricingClientError(
     "PRICING_UNAVAILABLE",
     `Pricing service unreachable: ${lastErr?.message || "connection failed"}`

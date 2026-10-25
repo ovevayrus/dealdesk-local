@@ -115,7 +115,7 @@ export const POST: APIRoute = async ({ request }) => {
     insertStmt.run(quoteId, nextVersion, JSON.stringify(newQuoteVersion), createdAt);
 
     // Render economics panel HTML fragment
-    const htmlFragment = renderEconomicsFragment(newEconomics, quoteId, nextVersion);
+    const htmlFragment = renderEconomicsFragment(newEconomics, quoteId, nextVersion, scenario === "shock" ? "shock" : "base");
 
     return new Response(htmlFragment, {
       status: 200,

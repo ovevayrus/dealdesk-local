@@ -17,7 +17,7 @@ const currentUrl = Astro.url;
       switchUrl.searchParams.set("actor", a.userId);
       return (
         <a
-          href={switchUrl.toString()}
+          href={switchUrl.pathname + switchUrl.search}
           style={a.userId === actor.userId ? "font-weight: 700; text-decoration: underline;" : ""}
         >
           {a.userId} ({a.role})

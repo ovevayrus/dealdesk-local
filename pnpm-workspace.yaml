@@ -3,4 +3,7 @@ packages:
 allowBuilds:
   esbuild: true
   sharp: true
+# Run package scripts through pnpm's shell emulator so POSIX `VAR=1 cmd` works on Windows.
 shellEmulator: true
+# Purge node_modules without an interactive prompt, for non-TTY shells and CI.
+confirmModulesPurge: false
