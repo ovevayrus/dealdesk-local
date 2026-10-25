@@ -14,6 +14,7 @@ docker run -d --name vllm-qwen \
   -p 127.0.0.1:8001:8000 \
   -v "$HUB":/models:ro \
   -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 \
+  -e VLLM_NO_USAGE_STATS=1 -e DO_NOT_TRACK=1 \
   -e VLLM_USE_FLASHINFER_MOE_FP4=0 \
   -e VLLM_FP8_MOE_BACKEND=flashinfer_cutlass \
   -e FLASHINFER_DISABLE_VERSION_CHECK=1 \

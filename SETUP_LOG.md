@@ -115,3 +115,10 @@ python3 ~/dealdesk/scripts/test_toolcall.py  # tool-call smoke test
 - Test: `openclaw agent --local --agent main -m "Use dealdesk-local to check whether we can offer $136,000"` took 17 s. The agent called `price_deal` via curl (one exec retry after a bad `timeout` parameter). `/api/status` → `external_agent.tool_calls_observed: 1, last_caller: openclaw`. vLLM `/metrics` confirms the requests were served locally. All figures in the answer match tool fields (offer 136000.00, discount 15.00%, stress margin 28.24%, floor 130133.34, director approval required, release not allowed).
 - Note: two later checks with `python -m dealdesk tool price_deal` logged as `cli-agent` and overwrote `last_caller`. Re-test 16:39 with no CLI calls afterwards: `/api/status` → `tool_calls_observed: 4, last_caller: openclaw`. The agent still does some arithmetic of its own (e.g. "$5,866.66 above the floor", "$24,000 off") even though the skill says to copy numbers only.
 - `proof/capture_egress.py`: stdlib egress sampler (host `ss` + vLLM container `/proc/<pid>/net`) that flags connections to known cloud model-provider IPs.
+
+## Task 6: Skill rule fix and proof/, 2026-10-25
+- `SKILL.md`: added a rule against computing any new number (differences, sums, "amount off", ratios) and a note that `exec` takes no `timeout` parameter. Synced to `~/.openclaw/workspace/skills/`.
+- Re-test (16:45): same prompt, 15.7 s, no exec retry. Every figure in the answer is a `price_deal` field (`discount_amount` 24000.00 included); the "above the floor" difference is gone. The only reformatting is cost lines written as "$60k" for 60000.00.
+- vLLM usage telemetry: a capture at 16:47 showed the container connected to `stats.vllm.ai`. Added `VLLM_NO_USAGE_STATS=1 DO_NOT_TRACK=1` to `start_qwen.sh`, recreated the container (ready 16:56:05).
+- Capture 16:56–17:06 with "Can we offer $136,000?" sent to `/api/chat` at 17:02:44: reply `mode: local_model` in 2.6 s, no model-provider or other outside connections from the app or vLLM.
+- `proof/`: `vllm_command.txt`, `openclaw.json` (apiKey redacted), `NETWORK_SUMMARY.md` + `egress_raw.log`, `OFFLINE_TEST.md`.

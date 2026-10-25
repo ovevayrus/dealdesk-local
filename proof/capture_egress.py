@@ -26,6 +26,8 @@ SUMMARY = sys.argv[3] if len(sys.argv) > 3 else "proof/EGRESS_SUMMARY.md"
 CONTAINER = "vllm-qwen"
 # Processes that make up the demo: the DealDesk app, vLLM, and OpenClaw (node).
 APP_OWNERS = {"python", "vllm-container", "node", "openclaw"}
+# Development tools running on the machine while we work, listed on their own.
+DEV_TOOLS = {"claude": "development tool, not part of the DealDesk runtime"}
 
 PROVIDER_HOSTS = [
     "api.openai.com", "api.anthropic.com", "generativelanguage.googleapis.com",
@@ -161,12 +163,23 @@ def main():
             s.write(f"| {owner} | {ip}:{port} | {seen[(owner, ip, port)]} | {label(ip)} |\n")
         if not app_rows:
             s.write("| (none) | only 127.0.0.1 traffic | | |\n")
+        s.write("\n## Development tools (not part of the DealDesk runtime)\n\n")
+        s.write("| Owner | Distinct peers | Provider matches | Note |\n|---|---|---|---|\n")
+        dev = defaultdict(set)
+        for owner, ip, port in seen:
+            if owner in DEV_TOOLS:
+                dev[owner].add((ip, port))
+        for owner, peers in sorted(dev.items()):
+            m = sorted({providers[ip] for ip, _ in peers if ip in providers})
+            s.write(f"| {owner} | {len(peers)} | {', '.join(m) or '-'} | {DEV_TOOLS[owner]} |\n")
+        if not dev:
+            s.write("| (none seen) | | | |\n")
         s.write("\n## Other processes on the machine (not part of the demo)\n\n")
         s.write("Peers are not listed, only counts and any provider matches.\n\n")
         s.write("| Owner | Distinct peers | Provider matches |\n|---|---|---|\n")
         others = defaultdict(set)
         for owner, ip, port in seen:
-            if owner not in APP_OWNERS:
+            if owner not in APP_OWNERS and owner not in DEV_TOOLS:
                 others[owner].add((ip, port))
         for owner, peers in sorted(others.items()):
             m = sorted({providers[ip] for ip, _ in peers if ip in providers})

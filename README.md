@@ -58,7 +58,8 @@ These are hand-calculated demonstration values, not measured customer savings or
 **Working single-user chatbot demo on synthetic data.** You can ask for a price, check a concession, see cited evidence, view a supply/freight cost forecast, and apply a synthetic supplier cost increase. The increase opens a review without changing the original quote. Pricing follows [the synthetic policy](docs/pricing-policy.md) exactly and reproduces all eight [reference cases](tests/fixtures/pricing_cases.json).
 
 - **Tested runtime:** scripted demo mode on Windows 11 with Python 3.13, used in a browser at `http://127.0.0.1:8000`. In this mode the chat uses labeled, templated wording over the real local pricing, search, and forecast tools. It is not live model inference.
-- **Live inference (OpenClaw / NemoClaw / Nemotron): not yet verified.** The [`dealdesk-local` OpenClaw skill](openclaw/skills/dealdesk-local/SKILL.md) and the local tool endpoints it calls are included and tested over HTTP. OpenClaw, NemoClaw, Nemotron, and the GB10 were not available in the development environment, so nothing here has run on that hardware.
+- **Live inference on the GB10 (verified 2026-10-25):** Dell Pro Max GB10 (Ubuntu 24.04.5, NVIDIA driver 580.178.04, CUDA 13.0), Python 3.12.3, `pytest` 78 passed. The model is **`nvidia/Qwen3.6-35B-A3B-NVFP4`** served by **vLLM 0.21.0** (`nvcr.io/nvidia/vllm:26.05.post1-py3`) on `127.0.0.1:8001` ([`scripts/start_qwen.sh`](scripts/start_qwen.sh)). **OpenClaw 2026.9.34** (Node.js 24.22.1) runs the [`dealdesk-local` skill](openclaw/skills/dealdesk-local/SKILL.md) against that model only (`models.mode: "replace"`, no fallbacks, telemetry off). Asking the agent "check whether we can offer $136,000" takes **about 16 s** end to end (15.7 s measured), calls `price_deal`, and every figure in the answer matches a tool field. The app's chat also runs in local-model mode against the same server. Configuration and network captures are in [`proof/`](proof).
+- **Not used:** Nemotron (Qwen3.6 is the agent model; Nemotron 3 Nano 4B is on the device as an unused fallback) and NemoClaw (OpenClaw runs with `--local`, no sandbox). **Still to do:** the full demo with networking turned off ([`proof/OFFLINE_TEST.md`](proof/OFFLINE_TEST.md)).
 - The scope covers one enterprise bundle, a small local document collection, USD pricing, simple forecasts, and one cost-change example. It does not include production authentication, real customer data, CRM connections, automatic customer sending, or an approval workflow ("Director approval required" is shown, not granted).
 
 All costs, policies, customers, competitors, and forecasts are synthetic. Forecast scenarios are not calibrated probabilities.
@@ -106,14 +107,14 @@ Reset clears quote versions, review events, chat, and dropped feeds, and restore
 | Mode | How answers are worded | Numbers come from |
 |---|---|---|
 | Scripted demo mode (default, tested) | Deterministic templates, labeled "Scripted demo mode" in the header and on each reply | Local pricing, search, and forecast tools |
-| OpenClaw agent (intended live path, not yet verified) | Nemotron inside OpenClaw/NemoClaw, using the `dealdesk-local` skill | The same tools, called over local HTTP or the CLI; every call appears in the chat |
+| OpenClaw agent (live path, verified on the GB10) | Qwen3.6-35B-A3B-NVFP4 on local vLLM, inside OpenClaw 2026.9.34, using the `dealdesk-local` skill | The same tools, called over local HTTP or the CLI; every call appears in the chat |
 | Local OpenAI-compatible endpoint (optional) | A model server you run locally, rewording the deterministic answer | The same tools; replies containing any amount or percentage not present in the tool results are replaced with scripted wording |
 
 There is no cloud model and no cloud fallback.
 
-### Connect OpenClaw / NemoClaw with Nemotron (on the GB10)
+### Connect OpenClaw to the local model (on the GB10)
 
-DealDesk does not call the model directly. OpenClaw runs the agent with Nemotron, and the agent calls DealDesk's four named tools: `search_documents`, `price_deal`, `forecast_costs`, and `apply_demo_cost_update`.
+DealDesk does not call the model directly. OpenClaw runs the agent with the local model (Qwen3.6-35B-A3B-NVFP4 on vLLM; see [`proof/openclaw.json`](proof/openclaw.json)), and the agent calls DealDesk's four named tools: `search_documents`, `price_deal`, `forecast_costs`, and `apply_demo_cost_update`.
 
 1. Start DealDesk on the same machine: `python -m dealdesk`.
 2. Copy [`openclaw/skills/dealdesk-local/`](openclaw/skills/dealdesk-local) into an OpenClaw skill root, such as `<workspace>/skills/` or `~/.agents/skills/`. These are the documented skill locations; check them against your installed OpenClaw version. The skill requires `curl`.
@@ -126,11 +127,11 @@ If the NemoClaw sandbox cannot reach the host's loopback address, either allow t
 python -m dealdesk tool price_deal '{"offer_revenue": "136000.00"}'
 ```
 
-**Outstanding verification on the device:** install the skill, confirm it is loaded, confirm Nemotron is the selected local model, confirm the sandbox can reach the tools, and record a full demo run with the network disconnected. None of these steps has been performed yet.
+**Verified on the device (2026-10-25):** the skill is installed in `~/.openclaw/workspace/skills/` and `openclaw skills info dealdesk-local` reports Ready; `openclaw models list` shows only `vllm-local/qwen3.6-35b-a3b`; the agent reaches the tools at `127.0.0.1:8000` over curl (no sandbox, so no network policy was needed); `/api/status` reports `last_caller: openclaw`. A connection capture during a question is in [`proof/NETWORK_SUMMARY.md`](proof/NETWORK_SUMMARY.md). **Still outstanding:** a full demo run with networking turned off ([`proof/OFFLINE_TEST.md`](proof/OFFLINE_TEST.md)), and running under NemoClaw or with Nemotron (neither has been tried).
 
 ### Optional: local OpenAI-compatible endpoint
 
-If Nemotron or another model is also served by a local OpenAI-compatible server (for example vLLM, NIM, or Ollama), DealDesk can word its own chat replies with it. Copy `.env.example` to `.env` and set:
+If a model is also served by a local OpenAI-compatible server (for example vLLM, NIM, or Ollama), DealDesk can word its own chat replies with it. Copy `.env.example` to `.env` and set:
 
 ```sh
 DEALDESK_MODE=local_model
@@ -138,7 +139,7 @@ DEALDESK_LLM_BASE_URL=http://127.0.0.1:8001/v1
 DEALDESK_LLM_MODEL=<model name the server lists>
 ```
 
-Only loopback, private-network, `.local`, or hosts listed in `DEALDESK_LLM_ALLOWED_HOSTS` are accepted; redirects and system proxies are refused. The header shows whether the endpoint is reachable. If the endpoint is unreachable, replies are labeled "Scripted fallback". This mode was tested only with a stubbed model in unit tests, not with a running model server.
+Only loopback, private-network, `.local`, or hosts listed in `DEALDESK_LLM_ALLOWED_HOSTS` are accepted; redirects and system proxies are refused. The header shows whether the endpoint is reachable. If the endpoint is unreachable, replies are labeled "Scripted fallback". On the GB10 this mode runs against vLLM serving `qwen3.6-35b-a3b` ("Can we offer $136,000?" returns `mode: local_model`). DealDesk sends `enable_thinking: false` so the reasoning model does not spend its token budget thinking.
 
 ### Scheduled watcher vs. manual update
 
@@ -178,7 +179,7 @@ GitHub Actions runs the same commands ([`.github/workflows/tests.yml`](.github/w
 ## How it works
 
 ```text
-Browser chat (plain HTML/CSS/JS)          OpenClaw agent + Nemotron (on device, not yet verified)
+Browser chat (plain HTML/CSS/JS)          OpenClaw agent + Qwen3.6 on vLLM (GB10)
         │ POST /api/chat                           │ POST /api/tools/<name>  or  python -m dealdesk tool
         ▼                                          ▼
  Bounded agent: intent → tools → structured results + evidence → explanation
@@ -203,7 +204,7 @@ Browser chat (plain HTML/CSS/JS)          OpenClaw agent + Nemotron (on device, 
 - Intent routing is rule-based. Unusual phrasings fall back to document search or a "documents do not answer" reply.
 - Supports USD, `standard_upfront` terms, and whole service months only. Director approval is displayed, not executed. There is no customer-facing export or sending.
 - The forecast demonstrates the pipeline on synthetic data, not real market predictive ability.
-- OpenClaw/NemoClaw/Nemotron integration and GB10 execution have not been verified.
+- Verified on the GB10 with OpenClaw and Qwen3.6 on local vLLM only. NemoClaw, Nemotron, and a run with networking turned off have not been tested.
 
 ## Team and tasks
 
