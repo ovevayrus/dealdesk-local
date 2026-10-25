@@ -1,0 +1,21 @@
+{
+  "requestId": "req-seed-001",
+  "dealId": "DEAL-ACME-001",
+  "accountId": "ACME-7",
+  "actor": {
+    "userId": "u-dana",
+    "role": "manager",
+    "accountIds": ["ACME-7", "NORTHWIND-2"]
+  },
+  "sku": "DDX-RACK-100",
+  "quantity": 100,
+  "deliveryStart": "2026-11-01",
+  "deliveryEnd": "2026-11-15",
+  "destination": "6 sites across US",
+  "scopeLocations": 6,
+  "termMonths": 12,
+  "paymentTerms": "Net 30",
+  "proposedDiscountPct": "15.00",
+  "currency": "USD",
+  "quoteExpiry": "2026-12-01"
+}

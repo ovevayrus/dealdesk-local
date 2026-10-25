@@ -1,0 +1,17 @@
+{
+  "runId": "r-seed-001",
+  "hits": [
+    {
+      "docId": "acme-profile",
+      "docHash": "d0c1",
+      "docTitle": "ACME Industrial Account Profile",
+      "section": "Deployment Sites",
+      "page": null,
+      "passage": "ACME operates across 6 primary industrial locations requiring multi-site rollout.",
+      "effectiveDate": "2026-09-14",
+      "classification": "internal",
+      "rank": 1,
+      "reason": "Deployment Sites"
+    }
+  ]
+}

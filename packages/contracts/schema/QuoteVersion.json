@@ -1,0 +1,358 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "quoteId": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "createdAt": {
+      "type": "string"
+    },
+    "inputsHash": {
+      "type": "string"
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "dealId": {
+          "type": "string"
+        },
+        "accountId": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "seller",
+                "manager",
+                "admin"
+              ]
+            },
+            "accountIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "userId",
+            "role",
+            "accountIds"
+          ],
+          "additionalProperties": false
+        },
+        "sku": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "deliveryStart": {
+          "type": "string"
+        },
+        "deliveryEnd": {
+          "type": "string"
+        },
+        "destination": {
+          "type": "string"
+        },
+        "scopeLocations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "termMonths": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "paymentTerms": {
+          "type": "string"
+        },
+        "proposedDiscountPct": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string",
+          "const": "USD"
+        },
+        "quoteExpiry": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "requestId",
+        "dealId",
+        "accountId",
+        "actor",
+        "sku",
+        "quantity",
+        "deliveryStart",
+        "deliveryEnd",
+        "destination",
+        "scopeLocations",
+        "termMonths",
+        "paymentTerms",
+        "proposedDiscountPct",
+        "currency",
+        "quoteExpiry"
+      ],
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "docId": {
+            "type": "string"
+          },
+          "docHash": {
+            "type": "string"
+          },
+          "section": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "docId",
+          "docHash",
+          "section"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "forecastVersion": {
+      "type": "string"
+    },
+    "policyVersion": {
+      "type": "string"
+    },
+    "economics": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "type": "string",
+          "const": "USD"
+        },
+        "listPrice": {
+          "type": "string"
+        },
+        "totalContractValue": {
+          "type": "string"
+        },
+        "upfront": {
+          "type": "string"
+        },
+        "recurring": {
+          "type": "string"
+        },
+        "discountPct": {
+          "type": "string"
+        },
+        "costs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "expected": {
+                "type": "string"
+              },
+              "stress": {
+                "type": "string"
+              },
+              "unit": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "expected",
+              "stress",
+              "unit"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "baseCostTotal": {
+          "type": "string"
+        },
+        "stressCostTotal": {
+          "type": "string"
+        },
+        "grossMargin": {
+          "type": "string"
+        },
+        "stressMargin": {
+          "type": "string"
+        },
+        "marginFloor": {
+          "type": "string"
+        },
+        "minAcceptablePrice": {
+          "type": "string"
+        },
+        "recommendedPrice": {
+          "type": "string"
+        },
+        "feasibleRange": {
+          "type": "object",
+          "properties": {
+            "low": {
+              "type": "string"
+            },
+            "high": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "low",
+            "high"
+          ],
+          "additionalProperties": false
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "info",
+                  "warn",
+                  "block"
+                ]
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "severity"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dataVersion": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "currency",
+        "listPrice",
+        "totalContractValue",
+        "upfront",
+        "recurring",
+        "discountPct",
+        "costs",
+        "baseCostTotal",
+        "stressCostTotal",
+        "grossMargin",
+        "stressMargin",
+        "marginFloor",
+        "minAcceptablePrice",
+        "recommendedPrice",
+        "feasibleRange",
+        "warnings",
+        "assumptions",
+        "dataVersion"
+      ],
+      "additionalProperties": false
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "actor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "authority": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exception": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expiresAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "quoteHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "state",
+        "actor",
+        "authority",
+        "exception",
+        "expiresAt",
+        "quoteHash"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "quoteId",
+    "version",
+    "createdAt",
+    "inputsHash",
+    "request",
+    "evidence",
+    "forecastVersion",
+    "policyVersion",
+    "economics",
+    "approval"
+  ],
+  "additionalProperties": false
+}

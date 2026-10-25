@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "currency": {
+      "type": "string",
+      "const": "USD"
+    },
+    "listPrice": {
+      "type": "string"
+    },
+    "totalContractValue": {
+      "type": "string"
+    },
+    "upfront": {
+      "type": "string"
+    },
+    "recurring": {
+      "type": "string"
+    },
+    "discountPct": {
+      "type": "string"
+    },
+    "costs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "expected": {
+            "type": "string"
+          },
+          "stress": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "expected",
+          "stress",
+          "unit"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "baseCostTotal": {
+      "type": "string"
+    },
+    "stressCostTotal": {
+      "type": "string"
+    },
+    "grossMargin": {
+      "type": "string"
+    },
+    "stressMargin": {
+      "type": "string"
+    },
+    "marginFloor": {
+      "type": "string"
+    },
+    "minAcceptablePrice": {
+      "type": "string"
+    },
+    "recommendedPrice": {
+      "type": "string"
+    },
+    "feasibleRange": {
+      "type": "object",
+      "properties": {
+        "low": {
+          "type": "string"
+        },
+        "high": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "low",
+        "high"
+      ],
+      "additionalProperties": false
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "info",
+              "warn",
+              "block"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "severity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dataVersion": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "currency",
+    "listPrice",
+    "totalContractValue",
+    "upfront",
+    "recurring",
+    "discountPct",
+    "costs",
+    "baseCostTotal",
+    "stressCostTotal",
+    "grossMargin",
+    "stressMargin",
+    "marginFloor",
+    "minAcceptablePrice",
+    "recommendedPrice",
+    "feasibleRange",
+    "warnings",
+    "assumptions",
+    "dataVersion"
+  ],
+  "additionalProperties": false
+}
