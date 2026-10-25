@@ -150,6 +150,29 @@ export function validateDealRequest(input: Record<string, any>, actor: Actor): V
     });
   }
 
+  // Reversed ranges and malformed discounts previously passed validation.
+  if (deliveryStart && deliveryEnd && !isNaN(Date.parse(deliveryStart)) && !isNaN(Date.parse(deliveryEnd))) {
+    if (Date.parse(deliveryEnd) < Date.parse(deliveryStart)) {
+      fields.push({
+        field: "deliveryEnd",
+        code: "INVALID_DATE_RANGE",
+        message: "Delivery end date cannot precede the delivery start date.",
+      });
+    }
+  }
+
+  const rawDiscount = input.proposedDiscountPct;
+  if (rawDiscount !== undefined && rawDiscount !== null && String(rawDiscount).trim() !== "") {
+    const discount = String(rawDiscount).trim();
+    if (!/^\d{1,3}(\.\d{1,2})?$/.test(discount) || Number(discount) > 100) {
+      fields.push({
+        field: "proposedDiscountPct",
+        code: "INVALID_DISCOUNT",
+        message: "Proposed discount must be a percentage between 0 and 100, e.g. 15.00.",
+      });
+    }
+  }
+
   // If any blocking errors occurred, fail immediately
   if (fields.length > 0) {
     return {
