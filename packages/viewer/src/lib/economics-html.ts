@@ -1,0 +1,127 @@
+import type { Economics } from "@dealdesk/contracts";
+
+export function renderEconomicsFragment(
+  economics: Economics,
+  quoteId: string,
+  version: number
+): string {
+  const isShock = economics.stressMargin === "22.35";
+  const isBlock = economics.warnings.some((w) => w.severity === "block");
+
+  const warningsHtml =
+    economics.warnings.length > 0
+      ? `<div class="warnings-container">
+          ${economics.warnings
+            .map(
+              (w) => `
+            <div class="warning-box ${w.severity}">
+              <strong>[${w.severity.toUpperCase()}] ${w.code}:</strong> ${w.message}
+            </div>`
+            )
+            .join("")}
+        </div>`
+      : "";
+
+  const costsRows = economics.costs
+    .map(
+      (c) => `
+      <tr>
+        <td>${c.label}</td>
+        <td class="numeric">$${c.expected}</td>
+        <td class="numeric">$${c.stress}</td>
+      </tr>`
+    )
+    .join("");
+
+  return `
+    <h2>Economics & Sensitivity (v${version})</h2>
+
+    ${warningsHtml}
+
+    <div class="sensitivity-controls" style="background: #f1f5f9; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-end;">
+      <div style="flex: 1;">
+        <label for="scenario-select" style="display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem;">
+          Scenario:
+        </label>
+        <select id="scenario-select" style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.85rem;">
+          <option value="base" ${!isShock ? "selected" : ""}>Base Case</option>
+          <option value="shock" ${isShock ? "selected" : ""}>Supplier Shock (+8% cost)</option>
+        </select>
+      </div>
+      <div style="flex: 1;">
+        <label for="supplier-delta-input" style="display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem;">
+          Supplier Cost Delta (%):
+        </label>
+        <input
+          type="number"
+          id="supplier-delta-input"
+          step="0.5"
+          min="-20"
+          max="20"
+          value="0.00"
+          style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.85rem;"
+        />
+      </div>
+      <div>
+        <button id="reprice-btn" type="button" style="padding: 0.45rem 0.85rem; background: var(--primary); color: white; border: none; border-radius: 4px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
+          Reprice Deal
+        </button>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Cost Item</th>
+          <th class="numeric">Expected (${economics.currency})</th>
+          <th class="numeric">Stress (${economics.currency})</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${costsRows}
+        <tr style="font-weight: 600; border-top: 2px solid var(--border-color);">
+          <td>Total Cost Basis</td>
+          <td class="numeric">$${economics.baseCostTotal}</td>
+          <td class="numeric">$${economics.stressCostTotal}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="data-table">
+      <tbody>
+        <tr>
+          <td>Gross Margin (Base Case)</td>
+          <td class="numeric"><strong>${economics.grossMargin}%</strong></td>
+        </tr>
+        <tr>
+          <td>Stress Margin</td>
+          <td class="numeric">
+            <strong style="color: ${isBlock ? "var(--danger)" : "var(--success)"};">
+              ${economics.stressMargin}%
+            </strong>
+          </td>
+        </tr>
+        <tr>
+          <td>Policy Margin Floor</td>
+          <td class="numeric">${economics.marginFloor}%</td>
+        </tr>
+        <tr>
+          <td>Min Acceptable Price</td>
+          <td class="numeric">$${economics.minAcceptablePrice}</td>
+        </tr>
+        <tr>
+          <td>Recommended Price</td>
+          <td class="numeric">$${economics.recommendedPrice}</td>
+        </tr>
+        <tr>
+          <td>Feasible Range</td>
+          <td class="numeric">${economics.feasibleRange.low} – ${economics.feasibleRange.high}</td>
+        </tr>
+        <tr>
+          <td>Data Feed Version</td>
+          <td class="numeric"><code>${economics.dataVersion}</code></td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+}

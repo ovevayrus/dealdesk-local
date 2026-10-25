@@ -25,21 +25,35 @@ const actor = getActor(Astro.request);
 const allActors = getActors();
 
 const db = getDb();
-const stmt = db.prepare(`
-  SELECT quote_id, version, payload, created_at
-  FROM quote_versions
-  WHERE quote_id = ?
-  ORDER BY version DESC
-  LIMIT 1
-`);
 
-const row = stmt.get(id) as any;
+const versionQuery = url.searchParams.get("v") || url.searchParams.get("version");
+const row = versionQuery
+  ? (db.prepare(`
+      SELECT quote_id, version, payload, created_at
+      FROM quote_versions
+      WHERE quote_id = ? AND version = ?
+    `).get(id, parseInt(versionQuery, 10)) as any)
+  : (db.prepare(`
+      SELECT quote_id, version, payload, created_at
+      FROM quote_versions
+      WHERE quote_id = ?
+      ORDER BY version DESC
+      LIMIT 1
+    `).get(id) as any);
 
 if (!row) {
   return new Response(`Quote ${id} not found`, { status: 404 });
 }
 
 const quoteVersion: QuoteVersion = JSON.parse(row.payload);
+
+// Get all versions for this quote for the version switcher
+const allVersions = (db.prepare(`
+  SELECT version, created_at
+  FROM quote_versions
+  WHERE quote_id = ?
+  ORDER BY version ASC
+`).all(id) as any[]).map((r) => r.version);
 
 // Authorize the quote itself per Spec 02 Fix 1
 if (!checkAccountScope(actor, quoteVersion.request.accountId)) {
@@ -92,8 +106,33 @@ const hydratedEvidence = hydrateEvidence(quoteVersion.evidence, actor);
           <p style="color: var(--text-muted); font-size: 0.875rem;">
             Account: <strong>{quoteVersion.request.accountId}</strong> &bull; Deal: {quoteVersion.request.dealId} &bull; Created: {quoteVersion.createdAt}
           </p>
+          {allVersions.length > 1 && (
+            <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+              <strong>Versions:</strong>
+              {allVersions.map((v) => (
+                <a
+                  href={`/quote/${quoteVersion.quoteId}?v=${v}`}
+                  style={`margin-left: 0.5rem; padding: 0.15rem 0.5rem; border-radius: 4px; text-decoration: none; font-weight: 600; ${
+                    v === quoteVersion.version
+                      ? "background: #0f172a; color: white;"
+                      : "background: #e2e8f0; color: #334155;"
+                  }`}
+                >
+                  v{v}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
-        <div>
+        <div style="text-align: right;">
+          <div style="margin-bottom: 0.5rem;">
+            <a
+              href={`/preview/${quoteVersion.quoteId}`}
+              style="padding: 0.4rem 0.75rem; background: #e0f2fe; color: #0284c7; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 0.85rem;"
+            >
+              Customer Proposal Preview &rarr;
+            </a>
+          </div>
           <span class={`badge`} style={`background-color: ${quoteVersion.approval.state === 'approved' ? 'var(--success)' : 'var(--warning)'}; color: white;`}>
             Status: {quoteVersion.approval.state} (v{quoteVersion.version})
           </span>
