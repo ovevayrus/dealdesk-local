@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
     "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
-    "start": "node ./dist/server/entry.mjs",
-    "test": "node --test test/**/*.test.ts",
-    "ingest": "node scripts/ingest.ts",
-    "reset": "node scripts/reset.ts",
-    "start:offline": "node --import ./scripts/egress-guard.mjs ./dist/server/entry.mjs"
+    "start": "node --env-file-if-exists=.env ./dist/server/entry.mjs",
+    "test": "DEALDESK_DB_PATH=.tmp/test.db node scripts/ingest.ts > /dev/null && DEALDESK_DB_PATH=.tmp/test.db node --test test/**/*.test.ts",
+    "ingest": "node --env-file-if-exists=.env scripts/ingest.ts",
+    "reset": "node --env-file-if-exists=.env scripts/reset.ts",
+    "start:offline": "node --env-file-if-exists=.env --import ./scripts/egress-guard.mjs ./dist/server/entry.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^9",
