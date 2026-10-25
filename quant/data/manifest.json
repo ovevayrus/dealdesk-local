@@ -10,13 +10,13 @@
       "file": "hardware_unit_cost.csv",
       "unit": "USD/unit",
       "last_month": "2026-09",
-      "data_version": "sha256:c95d72ba8c566fe8"
+      "data_version": "sha256:967b3859bf273b12"
     },
     "freight_shipment:LANE-OAK-PHX": {
       "file": "freight_lane_cost.csv",
       "unit": "USD/shipment",
       "last_month": "2026-09",
-      "data_version": "sha256:805a139348ec909b"
+      "data_version": "sha256:f298c1dabc456a60"
     }
   }
 }

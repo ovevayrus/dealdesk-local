@@ -56,7 +56,7 @@ def generate(out_dir="data") -> dict:
         rows = _series_values(spec, rng)
         path = out / spec["file"]
         with path.open("w", newline="") as f:
-            w = csv.writer(f)
+            w = csv.writer(f, lineterminator="\n")
             w.writerow(["series_id", "month", "value", "unit", "synthetic"])
             for month, value in rows:
                 w.writerow([series_id, month, f"{value:.2f}", spec["unit"], "true"])

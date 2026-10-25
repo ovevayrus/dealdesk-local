@@ -6,7 +6,7 @@ Results on synthetic data show the pipeline works. They say nothing about real s
 
 ## Supplier cost per bundle unit
 
-Series `hardware_unit:EDGE-100`, unit USD/unit, data version `sha256:c95d72ba8c566fe8`.
+Series `hardware_unit:EDGE-100`, unit USD/unit, data version `sha256:967b3859bf273b12`.
 
 | Method | Mean MAE | Overall WAPE | Forecasts scored |
 |---|---:|---:|---:|
@@ -38,7 +38,7 @@ Scenarios: low/high = base x (1 -/+ q), q = 90th percentile of absolute percenta
 
 ## Freight cost per shipment, OAK to PHX
 
-Series `freight_shipment:LANE-OAK-PHX`, unit USD/shipment, data version `sha256:805a139348ec909b`.
+Series `freight_shipment:LANE-OAK-PHX`, unit USD/shipment, data version `sha256:f298c1dabc456a60`.
 
 | Method | Mean MAE | Overall WAPE | Forecasts scored |
 |---|---:|---:|---:|
