@@ -1,0 +1,41 @@
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Keep sensitive source material and model artifacts local
+data/private/
+data/raw/
+data/internal/
+private/
+internal/
+sensitive/
+models/
+*.gguf
+*.safetensors
+
+# Runtime state and generated outputs
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+node_modules/
+dist/
+build/
+outputs/
+logs/
+*.log
+*.sqlite
+*.sqlite3
+*.db
+.DS_Store
+Thumbs.db
+
+# Existing local preparation artifacts are not project source
+.brief-tools/
+hackathon-prep-guide.html
+team-brief-dealdesk.html
