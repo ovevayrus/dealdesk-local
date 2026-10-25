@@ -1,7 +1,8 @@
 ---
 import "../../styles/app.css";
+import { randomUUID } from "node:crypto";
 import { getDb } from "../../lib/db.ts";
-import { getActor, getActors } from "../../lib/session.ts";
+import { getActor, getActors, checkAccountScope } from "../../lib/session.ts";
 import { hydrateEvidence } from "../../lib/retrieval.ts";
 import EvidencePanel from "../../components/EvidencePanel.astro";
 import type { QuoteVersion } from "@dealdesk/contracts";
@@ -37,7 +38,27 @@ if (!row) {
 }
 
 const quoteVersion: QuoteVersion = JSON.parse(row.payload);
-const hydratedEvidence = hydrateEvidence(quoteVersion.evidence);
+
+// Authorize the quote itself per Spec 02 Fix 1
+if (!checkAccountScope(actor, quoteVersion.request.accountId)) {
+  const runId = `r-${randomUUID()}`;
+  return new Response(
+    JSON.stringify({
+      runId,
+      error: {
+        code: "FORBIDDEN_ACCOUNT",
+        message: `Actor ${actor.userId} is not authorized to access quote for account ${quoteVersion.request.accountId}.`,
+      },
+    }),
+    {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+}
+
+// Hydrate evidence passing the actor to enforce classification authorization in SQL
+const hydratedEvidence = hydrateEvidence(quoteVersion.evidence, actor);
 ---
 
 <!doctype html>

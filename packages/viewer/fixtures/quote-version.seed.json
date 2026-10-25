@@ -25,11 +25,11 @@
     "quoteExpiry": "2026-12-01"
   },
   "evidence": [
-    { "docId": "acme-profile", "docHash": "SEED", "section": "Deployment Sites" },
-    { "docId": "acme-renewal-history", "docHash": "SEED", "section": "Historical Discounts" },
-    { "docId": "service-descriptions", "docHash": "SEED", "section": "Managed Support Tiers" },
-    { "docId": "pricing-policy-v1", "docHash": "SEED", "section": "Discount Policy" },
-    { "docId": "freight-lanes", "docHash": "SEED", "section": "Lane Rates" }
+    { "docId": "acme-profile", "docHash": "SEED", "section": "Deployment Sites", "chunkIndex": 2 },
+    { "docId": "acme-renewal-history", "docHash": "SEED", "section": "Historical Discounts", "chunkIndex": 1 },
+    { "docId": "service-descriptions", "docHash": "SEED", "section": "Managed Support Tiers", "chunkIndex": 1 },
+    { "docId": "pricing-policy-v1", "docHash": "SEED", "section": "Discount Policy", "chunkIndex": 2 },
+    { "docId": "freight-lanes", "docHash": "SEED", "section": "Lane Rates", "chunkIndex": 1 }
   ],
   "forecastVersion": "seed",
   "policyVersion": "v1",

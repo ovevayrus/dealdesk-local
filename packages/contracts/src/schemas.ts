@@ -39,12 +39,15 @@ export const EvidenceHitSchema = z.object({
   docHash: z.string(),
   docTitle: z.string(),
   section: z.string(),
+  chunkIndex: z.number().int().min(0).optional(),
   page: z.number().nullable(),
   passage: z.string(),
   effectiveDate: z.string(),
   classification: ClassificationSchema,
   rank: z.number().int().min(1),
   reason: z.string(),
+  withheld: z.boolean().optional(),
+  missing: z.boolean().optional(),
 });
 
 export const EvidenceResultSchema = z.object({
@@ -106,6 +109,7 @@ export const EvidenceRefSchema = z.object({
   docId: z.string(),
   docHash: z.string(),
   section: z.string(),
+  chunkIndex: z.number().int().min(0).optional(),
 });
 
 export const QuoteVersionSchema = z.object({

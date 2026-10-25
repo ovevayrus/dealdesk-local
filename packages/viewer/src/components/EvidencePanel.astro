@@ -16,6 +16,50 @@ const { evidence } = Astro.props;
     <div class="evidence-list">
       {evidence.map((hit) => {
         const hashDisplay = hit.docHash === "SEED" ? "SEED" : hit.docHash.slice(0, 8);
+
+        if (hit.withheld) {
+          return (
+            <div class="evidence-item withheld" data-doc-id={hit.docId}>
+              <div class="evidence-header">
+                <span class="evidence-title" style="color: var(--text-muted); font-style: italic;">
+                  [Withheld Citation]
+                </span>
+                <span class="badge-classification" style="background-color: var(--text-muted);">
+                  WITHHELD
+                </span>
+              </div>
+              <div class="evidence-meta">
+                <span>Passage withheld for current role (elevated classification required)</span>
+                <span>•</span>
+                <span>Hash: <code>{hashDisplay}</code></span>
+              </div>
+            </div>
+          );
+        }
+
+        if (hit.missing) {
+          return (
+            <div class="evidence-item missing" data-doc-id={hit.docId} style="border-left: 3px solid var(--warning);">
+              <div class="evidence-header">
+                <span class="evidence-title" style="color: var(--warning);">
+                  Missing Citation: {hit.docId}
+                </span>
+                <span class="badge-warning">BROKEN CITATION</span>
+              </div>
+              <div class="evidence-meta">
+                <span>Referenced Section: <strong>{hit.section}</strong></span>
+                <span>•</span>
+                <span>Chunk: {hit.chunkIndex ?? 0}</span>
+                <span>•</span>
+                <span>Hash: <code>{hashDisplay}</code></span>
+              </div>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                The referenced source passage could not be located in the current corpus.
+              </p>
+            </div>
+          );
+        }
+
         return (
           <div class="evidence-item" data-doc-id={hit.docId}>
             <div class="evidence-header">

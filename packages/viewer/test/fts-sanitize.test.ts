@@ -19,6 +19,11 @@ test("fts-sanitize: quotes, asterisks, and NEAR operators are sanitized safely",
   assert.ok(sanitized.includes('"near"'));
 });
 
+test("fts-sanitize: single letter 'a' is dropped while single digit '7' is retained", () => {
+  const result = sanitizeFtsQuery("a 7 acme");
+  assert.equal(result, '"7" OR "acme"');
+});
+
 test("fts-sanitize: all-punctuation query returns null and zero hits without querying db", () => {
   const sanitized = sanitizeFtsQuery("?!@#$%^&*()_+:;");
   assert.equal(sanitized, null);

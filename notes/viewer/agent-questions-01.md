@@ -11,3 +11,12 @@
 - **Spec section**: Section 2 (Constraint 5: No analytics, no telemetry) and Section 4.
 - **What was done instead**: Configured `ASTRO_TELEMETRY_DISABLED=1` in `packages/viewer/package.json` scripts (`dev` and `build`).
 - **Decision needed**: None required; this satisfies Constraint 5 and avoids permission errors.
+
+## Deferred
+
+### Fix 2: Hydration drops citations silently
+- **Status**: Deferred per Spec 03. Zero sections split in the current corpus and neither is visible in the demo. Handled basic missing marker if ref not found.
+
+### Fix 3: Sub-chunk LIMIT 1 and chunkIndex
+- **Status**: Deferred per Spec 03. All sections in fixture corpus currently fit within single chunks. Schema supports optional chunkIndex without breaking existing citations.
+

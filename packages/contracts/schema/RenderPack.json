@@ -284,6 +284,11 @@
               "section": {
                 "type": "string"
               },
+              "chunkIndex": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
               "page": {
                 "type": [
                   "number",
@@ -311,6 +316,12 @@
               },
               "reason": {
                 "type": "string"
+              },
+              "withheld": {
+                "type": "boolean"
+              },
+              "missing": {
+                "type": "boolean"
               }
             },
             "required": [

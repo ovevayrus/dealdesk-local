@@ -45,7 +45,7 @@ export function searchEvidence(params: SearchEvidenceParams, actor: Actor): Evid
   const classPlaceholders = allowedClassifications.map(() => "?").join(", ");
 
   const sql = `
-    SELECT c.doc_id, c.section, c.page, c.body,
+    SELECT c.doc_id, c.section, c.chunk_index, c.page, c.body,
            d.doc_hash, d.title, d.effective_date, d.classification,
            bm25(chunks_fts) AS score
     FROM chunks_fts
@@ -67,12 +67,15 @@ export function searchEvidence(params: SearchEvidenceParams, actor: Actor): Evid
     docHash: row.doc_hash,
     docTitle: row.title,
     section: row.section,
+    chunkIndex: row.chunk_index,
     page: row.page ?? null,
     passage: row.body,
     effectiveDate: row.effective_date,
     classification: row.classification,
     rank: index + 1,
     reason: row.section, // Interim default per Section 13
+    withheld: false,
+    missing: false,
   }));
 
   return { runId, hits };
@@ -82,46 +85,126 @@ export interface HydratedEvidenceHit extends EvidenceHit {
   warning?: "SOURCE_CHANGED";
 }
 
-export function hydrateEvidence(refs: EvidenceRef[]): HydratedEvidenceHit[] {
+export function hydrateEvidence(refs: EvidenceRef[], actor: Actor): HydratedEvidenceHit[] {
   const db = getDb();
-  const stmt = db.prepare(`
-    SELECT c.doc_id, c.section, c.page, c.body,
+  const allowedClassifications = getAllowedClassifications(actor.role);
+  const classPlaceholders = allowedClassifications.map(() => "?").join(", ");
+
+  // Direct SQL lookup filtering by classification placeholders
+  const sql = `
+    SELECT c.doc_id, c.section, c.chunk_index, c.page, c.body,
            d.doc_hash, d.title, d.effective_date, d.classification
     FROM chunks c
     JOIN documents d ON d.doc_id = c.doc_id
-    WHERE c.doc_id = ? AND c.section = ?
+    WHERE c.doc_id = ?
+      AND c.section = ?
+      AND (c.chunk_index = ? OR ? IS NULL)
+      AND d.classification IN (${classPlaceholders})
     ORDER BY c.chunk_index ASC
     LIMIT 1;
+  `;
+  const stmt = db.prepare(sql);
+
+  // Fallback statement to check why an item wasn't returned (withheld vs missing)
+  const docStmt = db.prepare(`
+    SELECT doc_id, classification, title, effective_date FROM documents WHERE doc_id = ?
   `);
 
   const hits: HydratedEvidenceHit[] = [];
 
   for (let i = 0; i < refs.length; i++) {
     const ref = refs[i];
-    const row = stmt.get(ref.docId, ref.section) as any;
-    if (!row) {
-      continue;
+    const targetChunkIndex = ref.chunkIndex !== undefined ? ref.chunkIndex : null;
+
+    const row = stmt.get(
+      ref.docId,
+      ref.section,
+      targetChunkIndex,
+      targetChunkIndex,
+      ...allowedClassifications
+    ) as any;
+
+    if (row) {
+      const hit: HydratedEvidenceHit = {
+        docId: row.doc_id,
+        docHash: row.doc_hash,
+        docTitle: row.title,
+        section: row.section,
+        chunkIndex: row.chunk_index,
+        page: row.page ?? null,
+        passage: row.body,
+        effectiveDate: row.effective_date,
+        classification: row.classification,
+        rank: i + 1,
+        reason: row.section,
+        withheld: false,
+        missing: false,
+      };
+
+      // Drift check per Section 6: "SEED" skips drift check; otherwise flag SOURCE_CHANGED
+      if (ref.docHash !== "SEED" && ref.docHash !== row.doc_hash) {
+        hit.warning = "SOURCE_CHANGED";
+      }
+
+      hits.push(hit);
+    } else {
+      // Row not returned: determine if document exists and is withheld, or missing
+      const doc = docStmt.get(ref.docId) as any;
+      if (doc) {
+        if (!allowedClassifications.includes(doc.classification)) {
+          // Document exists but current actor is not cleared to read its classification
+          hits.push({
+            docId: ref.docId,
+            docHash: ref.docHash,
+            docTitle: "[WITHHELD]",
+            section: "[WITHHELD]",
+            chunkIndex: ref.chunkIndex ?? 0,
+            page: null,
+            passage: "[WITHHELD: Passage restricted for current role]",
+            effectiveDate: "[WITHHELD]",
+            classification: "internal", // Never expose "restricted" to unauthorized roles
+            rank: i + 1,
+            reason: "Access restricted for current role",
+            withheld: true,
+            missing: false,
+          });
+        } else {
+          // Document exists and is authorized, but the section/chunk was not found
+          hits.push({
+            docId: ref.docId,
+            docHash: ref.docHash,
+            docTitle: doc.title,
+            section: ref.section,
+            chunkIndex: ref.chunkIndex ?? 0,
+            page: null,
+            passage: "[MISSING: Citation section not found in document]",
+            effectiveDate: doc.effective_date,
+            classification: doc.classification,
+            rank: i + 1,
+            reason: "Citation missing",
+            withheld: false,
+            missing: true,
+          });
+        }
+      } else {
+        // Document does not exist in corpus
+        hits.push({
+          docId: ref.docId,
+          docHash: ref.docHash,
+          docTitle: "[MISSING]",
+          section: ref.section,
+          chunkIndex: ref.chunkIndex ?? 0,
+          page: null,
+          passage: "[MISSING: Document not found in corpus]",
+          effectiveDate: "[MISSING]",
+          classification: "internal",
+          rank: i + 1,
+          reason: "Citation missing",
+          withheld: false,
+          missing: true,
+        });
+      }
     }
-
-    const hit: HydratedEvidenceHit = {
-      docId: row.doc_id,
-      docHash: row.doc_hash,
-      docTitle: row.title,
-      section: row.section,
-      page: row.page ?? null,
-      passage: row.body,
-      effectiveDate: row.effective_date,
-      classification: row.classification,
-      rank: i + 1,
-      reason: row.section,
-    };
-
-    // Drift check per Section 6: "SEED" skips drift check; otherwise flag SOURCE_CHANGED
-    if (ref.docHash !== "SEED" && ref.docHash !== row.doc_hash) {
-      hit.warning = "SOURCE_CHANGED";
-    }
-
-    hits.push(hit);
   }
 
   return hits;

@@ -1,15 +1,26 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Actor, ActorRole, Classification } from "@dealdesk/contracts";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const actorsFile = resolve(__dirname, "../../fixtures/actors.json");
+function findWorkspaceRoot(): string {
+  let cur = dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 6; i++) {
+    if (existsSync(resolve(cur, "pnpm-workspace.yaml"))) {
+      return cur;
+    }
+    const parent = dirname(cur);
+    if (parent === cur) break;
+    cur = parent;
+  }
+  return process.cwd();
+}
 
 let cachedActors: Actor[] | null = null;
 
 export function getActors(): Actor[] {
   if (!cachedActors) {
+    const actorsFile = resolve(findWorkspaceRoot(), "packages/viewer/fixtures/actors.json");
     const raw = readFileSync(actorsFile, "utf-8");
     cachedActors = JSON.parse(raw);
   }

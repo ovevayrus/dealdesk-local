@@ -1,16 +1,26 @@
 import { DatabaseSync } from "node:sqlite";
 import { resolve, dirname } from "node:path";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+function findWorkspaceRoot(): string {
+  let cur = dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 6; i++) {
+    if (existsSync(resolve(cur, "pnpm-workspace.yaml"))) {
+      return cur;
+    }
+    const parent = dirname(cur);
+    if (parent === cur) break;
+    cur = parent;
+  }
+  return process.cwd();
+}
 
 export function getDbPath(): string {
   if (process.env.DEALDESK_DB_PATH) {
     return resolve(process.env.DEALDESK_DB_PATH);
   }
-  // From packages/viewer/src/lib, workspace root is ../../../
-  return resolve(__dirname, "../../../../data/dealdesk.db");
+  return resolve(findWorkspaceRoot(), "data/dealdesk.db");
 }
 
 let _dbInstance: DatabaseSync | null = null;
@@ -19,13 +29,16 @@ export function getDb(customPath?: string): DatabaseSync {
   if (customPath) {
     const dir = dirname(resolve(customPath));
     mkdirSync(dir, { recursive: true });
-    return new DatabaseSync(resolve(customPath));
+    const db = new DatabaseSync(resolve(customPath));
+    db.exec("PRAGMA busy_timeout = 5000;");
+    return db;
   }
   if (!_dbInstance) {
     const dbPath = getDbPath();
     const dir = dirname(dbPath);
     mkdirSync(dir, { recursive: true });
     _dbInstance = new DatabaseSync(dbPath);
+    _dbInstance.exec("PRAGMA busy_timeout = 5000;");
   }
   return _dbInstance;
 }
@@ -38,6 +51,7 @@ export function closeDb(): void {
 }
 
 export function initSchema(db: DatabaseSync): void {
+  db.exec("PRAGMA journal_mode = WAL;");
   db.exec(`
     CREATE TABLE IF NOT EXISTS documents (
       doc_id         TEXT PRIMARY KEY,
