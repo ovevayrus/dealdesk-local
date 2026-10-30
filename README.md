@@ -1,8 +1,14 @@
 # DealDesk Local
 
-**A local AI assistant that helps enterprise sales teams recommend a price, explain it, and understand the risks behind it.**
+**A local pricing demo for sales teams: check an offer against margin policy and see the documents behind the recommendation.**
 
-DealDesk Local brings together a company's confidential customer research, competitor analysis, service information, pricing policies, and cost forecasts. Through a simple chatbot, a salesperson can ask what to offer, inspect the supporting evidence, and see how a discount or cost change affects the deal. The design keeps inference and sensitive processing on company-controlled hardware.
+Ask “Can we offer $136,000?” to see the price, margin, approval requirement and supporting passages. Apply the sample supplier-cost increase to compare the revised economics with the original quote.
+
+![Actual scripted demo showing the synthetic $136,000 pricing result](docs/images/pricing-result.jpg)
+
+*Actual localhost interface using committed synthetic data. Scripted wording is labeled in the app; this image does not show live model inference.*
+
+This is a single-user prototype with synthetic data. The default chat uses scripted wording over local pricing, search and forecast code. Optional local-model wording requires your own model runtime. Start with the [Python demo](#run-the-demo), then open `http://127.0.0.1:8000`. Do not load real customer data or expose it through a public tunnel. [Read the runtime and privacy boundaries](docs/security-boundaries.md).
 
 **[Read the detailed project brief](dealdesk-project-brief.md)** · [Team tasks](TEAM_TASKS.md) · [Download the offline HTML brief](dealdesk-project-brief.html)
 
@@ -19,11 +25,11 @@ Enterprise pricing is rarely just a price-book lookup. The information needed to
 | **Prices that are difficult to justify** | Explain the offer using customer priorities, service value, delivery commitments, and documented evidence. |
 | **Sensitive research and cost information** | Keep the model and sensitive tools local, with internal rationale separated from customer-facing output. |
 
-## What our model will do
+## How model wording fits
 
-The language model will interpret the salesperson's question, identify missing deal information, retrieve relevant company knowledge, call local tools, and explain the results in clear language.
+The Python chatbot routes supported questions to local tools and reports missing inputs. Optional model mode rewords a structured answer; a separate OpenClaw agent can call the same four named tools. Model wording is not an approval authority.
 
-Dedicated pricing code will calculate costs, discounts, margins, and price floors. Forecasting tools will supply dated cost estimates and explicitly labeled scenarios. The model will explain these calculations; it will not invent authoritative prices or replace the numerical pricing engine.
+Dedicated pricing code calculates costs, discounts, margins and price floors. Forecasting tools supply dated cost estimates and labeled scenarios. The model explains these calculations; the numerical engine supplies the authoritative values.
 
 The chatbot is designed to answer questions such as:
 
@@ -53,6 +59,10 @@ For example, the synthetic reference deal includes a $136,000 offer with a 28.24
 
 These are hand-calculated demonstration values, not measured customer savings or a claim that a buyer will accept the revised price.
 
+![Original synthetic quote preserved beside the separate cost-change appraisal](docs/images/cost-review.jpg)
+
+*Applying the sample feed preserves the original quote and opens a separate review. Human approval/release is required.*
+
 ## Current scope and status
 
 **Working single-user chatbot demo on synthetic data.** You can ask for a price, check a concession, see cited evidence, view a supply/freight cost forecast, and apply a synthetic supplier cost increase. The increase opens a review without changing the original quote. Pricing follows [the synthetic policy](docs/pricing-policy.md) exactly and reproduces all eight [reference cases](tests/fixtures/pricing_cases.json).
@@ -66,15 +76,15 @@ All costs, policies, customers, competitors, and forecasts are synthetic. Foreca
 
 ## Run the demo
 
-Requires Python 3.10 or later. From the repository root:
+Use Python 3.11 or later with the recorded constraints; this update was tested on Python 3.12.14. The source metadata still permits Python 3.10 with a different dependency resolution, which was not verified here. From the repository root:
 
 ```sh
-python -m pip install -r requirements.txt
+python -m pip install -r requirements.txt -c requirements.constraints.txt
 python scripts/seed_demo_data.py --check
 python -m dealdesk
 ```
 
-Open **http://127.0.0.1:8000**. The server binds to loopback by default; set `DEALDESK_HOST`/`DEALDESK_PORT` in `.env` to change it (see [`.env.example`](.env.example)). On Windows, `py -3` works in place of `python`.
+Open **http://127.0.0.1:8000**. Run this in a dedicated virtual environment without production credentials. The server requires loopback; `DEALDESK_PORT` can select another local port. Browser requests must come from the same origin; local CLI/agent tools may omit the Origin header. See [`.env.example`](.env.example) and the [limits](docs/security-boundaries.md). On Windows, `py -3` works in place of `python`.
 
 `seed_demo_data.py --check` confirms that the committed synthetic forecast histories match their fixed seed. Run it without `--check` to regenerate them. The knowledge pack, deal request, and cost feeds are committed files under [`data/synthetic/`](data/synthetic); nothing needs downloading.
 
@@ -90,6 +100,10 @@ The UI is a simple chatbot: type a question (or click a suggested one) and it re
 6. Ask **What happens if supplier costs increase?** for a preview, then **Apply supplier cost increase**. Stress cost rises to $105,600.00, and the unchanged $136,000.00 offer falls to a 22.35% stress margin against a $140,800.00 floor. The result is blocked with review required, and the reply shows the preserved original quote beside the revised appraisal. Follow-up questions then use the revised economics.
 7. Click **Reset demo** to restore the initial feed, quote context, and chat, then repeat.
 
+![Opened citation with the synthetic customer passage and its source path](docs/images/evidence.jpg)
+
+*Citations open the actual committed passage. The customer and procurement details are fictional.*
+
 You can also ask "What is the lowest we can go?", "Can we offer 140k?", "Quote it in EUR" (rejected: USD only), or "Price a deal for Granite Peak" (blocked: missing inputs listed). "How this was calculated" under each reply lists the tool calls and assumptions.
 
 ### Reset
@@ -100,7 +114,7 @@ Use the **Reset demo** button, or with the server stopped or running:
 python -m dealdesk reset
 ```
 
-Reset clears quote versions, review events, chat, and dropped feeds, and restores feed `synthetic-costs-v1`. Runtime state lives in `data/runtime/` (git-ignored SQLite).
+Reset clears quote versions, review events, chat, and dropped feeds, and restores feed `synthetic-costs-v1`. Runtime state lives in `data/runtime/` (git-ignored SQLite). The latest 200 transient chat/event messages are retained; quote versions and review records are kept separately until an explicit reset.
 
 ## Runtime modes
 
@@ -110,7 +124,7 @@ Reset clears quote versions, review events, chat, and dropped feeds, and restore
 | OpenClaw agent (live path, verified on the GB10) | Qwen3.6-35B-A3B-NVFP4 on local vLLM, inside OpenClaw 2026.9.34, using the `dealdesk-local` skill | The same tools, called over local HTTP or the CLI; every call appears in the chat |
 | Local OpenAI-compatible endpoint (optional) | A model server you run locally, rewording the deterministic answer | The same tools; replies containing any amount or percentage not present in the tool results are replaced with scripted wording |
 
-There is no cloud model and no cloud fallback.
+The default configuration makes no cloud model call and has no automatic cloud fallback. A configured LAN, `.local` or explicitly allowed model host is trusted configuration; verify that endpoint before sending any material. The optional Slack integration connects to Slack if started separately.
 
 ### Connect OpenClaw to the local model (on the GB10)
 
@@ -199,7 +213,7 @@ Browser chat (plain HTML/CSS/JS)          OpenClaw agent + Qwen3.6 on vLLM (GB10
 
 ## Limitations
 
-- Single user, no authentication, loopback only. Not for real customer data.
+- Single user, no authentication, loopback only. Not for real customer data. The separate viewer's unsigned role cookie is a demo role switch, not production identity.
 - One reference deal (SYN-REFERENCE-001). The other two accounts have profiles but no deal requests, so pricing them reports missing inputs.
 - Intent routing is rule-based. Unusual phrasings fall back to document search or a "documents do not answer" reply.
 - Supports USD, `standard_upfront` terms, and whole service months only. Director approval is displayed, not executed. There is no customer-facing export or sending.
@@ -244,6 +258,14 @@ It prints each case's result and exits nonzero on failure. The production engine
 - Keep real internal documents, customer information, credentials, and model weights out of Git.
 - Run inference and sensitive processing locally, and enforce numerical pricing rules in code.
 - Keep internal costs, margins, and restricted source passages out of customer-facing output and outbound notifications.
+
+The optional Slack buttons acknowledge a review or request changes; they never approve or release a quote. Set `DEALDESK_SLACK_REVIEWERS` to allowed user IDs and `DEAL_ROOM_CHANNEL` to the exact channel ID before starting it. Tests use fake Slack clients. Read [the boundaries](docs/security-boundaries.md) before changing data or runtime settings.
+
+## Contributing and license
+
+Start with a reproducible pricing case, a document-retrieval regression, or a small fix to the synthetic demo. Run the Python checks above; the separate viewer has [its own test instructions](packages/viewer/README.md). Explain behavior changes and include synthetic inputs only. Preserve contributor credits and dated verification notes.
+
+No license file has been selected for this repository. Ask the owner about reuse or licensing; this review does not add or imply a license.
 
 ## Hackathon checkpoints
 

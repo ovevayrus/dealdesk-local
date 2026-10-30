@@ -23,6 +23,9 @@ Usage:
 import json
 import os
 import secrets
+import tempfile
+import threading
+from contextlib import contextmanager
 from datetime import datetime, timezone
 
 from dotenv import load_dotenv
@@ -36,6 +39,42 @@ VIEWER_URL = os.environ.get("DEALDESK_VIEWER_URL", "http://127.0.0.1:4321/")
 FOOTER = "Details stay on the local DealDesk viewer."
 
 _client = None
+_review_lock = threading.RLock()
+
+
+@contextmanager
+def _review_transaction():
+    """Serialize local processes and atomically replace the review map on success."""
+    parent = os.path.dirname(os.path.abspath(REVIEW_MAP_PATH))
+    os.makedirs(parent, exist_ok=True)
+    with _review_lock, open(REVIEW_MAP_PATH + ".lock", "a+b") as lock:
+        if os.name == "nt":
+            import msvcrt
+            if os.path.getsize(lock.name) == 0:
+                lock.write(b"0")
+                lock.flush()
+            lock.seek(0)
+            msvcrt.locking(lock.fileno(), msvcrt.LK_LOCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        try:
+            reviews = _load_reviews()
+            yield reviews
+            fd, path = tempfile.mkstemp(prefix="reviews-", suffix=".json", dir=parent)
+            try:
+                with os.fdopen(fd, "w", encoding="utf-8") as handle:
+                    json.dump(reviews, handle, indent=2)
+                os.replace(path, REVIEW_MAP_PATH)
+            finally:
+                if os.path.exists(path):
+                    os.unlink(path)
+        finally:
+            if os.name == "nt":
+                lock.seek(0)
+                msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
 
 
 def get_client() -> WebClient:
@@ -63,13 +102,28 @@ def new_review_id(existing=()) -> str:
 
 def register_review(deal_id: str) -> str:
     """Create a review ID for a deal and record the mapping locally only."""
-    reviews = _load_reviews()
-    rid = new_review_id(reviews)
-    reviews[rid] = {"deal_id": deal_id, "created": datetime.now(timezone.utc).isoformat()}
-    os.makedirs(os.path.dirname(REVIEW_MAP_PATH), exist_ok=True)
-    with open(REVIEW_MAP_PATH, "w") as f:
-        json.dump(reviews, f, indent=2)
+    with _review_transaction() as reviews:
+        rid = new_review_id(reviews)
+        reviews[rid] = {"deal_id": deal_id, "created": datetime.now(timezone.utc).isoformat(),
+                        "state": "unposted"}
     return rid
+
+
+def resolve_review(review_id: str, user: str, channel: str, ts: str, verdict: str) -> bool:
+    """Record one acknowledgement; it does not approve or release a quote."""
+    allowed = {u.strip() for u in os.environ.get("DEALDESK_SLACK_REVIEWERS", "").split(",") if u.strip()}
+    configured_channel = os.environ.get("DEAL_ROOM_CHANNEL", "")
+    if user not in allowed or not configured_channel or channel != configured_channel:
+        return False
+    if verdict not in ("Review acknowledged", "Changes requested"):
+        return False
+    with _review_transaction() as reviews:
+        entry = reviews.get(review_id)
+        if not entry or entry.get("state") != "pending" or entry.get("channel") != channel or entry.get("ts") != ts:
+            return False
+        entry.update(state="resolved", verdict=verdict, reviewer=user,
+                     resolved=datetime.now(timezone.utc).isoformat())
+    return True
 
 
 def lookup_review(review_id: str) -> str | None:
@@ -101,14 +155,14 @@ def build_review_blocks(review_id: str) -> list:
                 {
                     "type": "button",
                     "action_id": "deal_approve",
-                    "text": {"type": "plain_text", "text": "Approve"},
+                    "text": {"type": "plain_text", "text": "Acknowledge review"},
                     "style": "primary",
                     "value": review_id,
                 },
                 {
                     "type": "button",
                     "action_id": "deal_reject",
-                    "text": {"type": "plain_text", "text": "Reject"},
+                    "text": {"type": "plain_text", "text": "Request changes"},
                     "style": "danger",
                     "value": review_id,
                 },
@@ -130,6 +184,8 @@ def post_deal_card(data: dict, channel: str | None = None) -> dict:
         blocks=build_review_blocks(review_id),
         unfurl_links=False,
     )
+    with _review_transaction() as reviews:
+        reviews[review_id].update(state="pending", channel=resp["channel"], ts=resp["ts"])
     return {"channel": resp["channel"], "ts": resp["ts"], "review_id": review_id}
 
 

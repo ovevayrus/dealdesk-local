@@ -143,6 +143,8 @@ def _money(value: Decimal) -> str:
 
 def forecast_costs(feed: dict[str, Any], deal: dict[str, Any], as_of: date, horizon: int = 6) -> dict[str, Any]:
     """Forecast each series from complete months before ``as_of`` and tie it to the deal's dates."""
+    if type(horizon) is not int or not 1 <= horizon <= 24:
+        raise ValueError("horizon must be an integer between 1 and 24 months.")
     as_of_month = month_key(as_of.year, as_of.month)
     series_out = []
     for series_id, spec in SERIES.items():

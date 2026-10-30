@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS review_events (
 );
 """
 
+CHAT_RETENTION = 200  # Transient display history only; quotes/review records are never pruned.
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -79,6 +81,8 @@ class Store:
         with self._lock, self._connect() as db:
             db.execute("INSERT INTO messages (role, payload, created_at) VALUES (?, ?, ?)",
                        (role, json.dumps(payload), _now()))
+            db.execute("DELETE FROM messages WHERE id NOT IN "
+                       "(SELECT id FROM messages ORDER BY id DESC LIMIT ?)", (CHAT_RETENTION,))
 
     def messages(self) -> list[dict[str, Any]]:
         with self._lock, self._connect() as db:

@@ -12,8 +12,8 @@
     "start:offline": "node --env-file-if-exists=.env --import ./scripts/egress-guard.mjs ./dist/server/entry.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^9",
-    "astro": "^5",
+    "@astrojs/node": "11.1.3",
+    "astro": "7.3.3",
     "zod": "^4",
     "@dealdesk/contracts": "workspace:*"
   },

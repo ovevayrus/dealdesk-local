@@ -36,5 +36,5 @@ def client(settings):
 
     from dealdesk.app import create_app
 
-    with TestClient(create_app(settings)) as test_client:
+    with TestClient(create_app(settings), base_url="http://127.0.0.1") as test_client:
         yield test_client

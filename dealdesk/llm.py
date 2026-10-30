@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 import urllib.error
 import urllib.request
 from typing import Any
@@ -23,11 +24,13 @@ class _RefuseRedirects(urllib.request.HTTPRedirectHandler):
     """The host allowlist is checked once, so a redirect must not move the request elsewhere."""
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        raise LocalModelError(f"Local model endpoint redirected to {newurl}; redirects are refused.")
+        raise LocalModelError("Local model endpoint redirected; redirects are refused.")
 
 
 # No system proxies (a proxy could forward requests off the machine) and no redirects.
 _OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}), _RefuseRedirects())
+MAX_RESPONSE_BYTES = 1_048_576
+_SLOTS = threading.BoundedSemaphore(2)
 
 
 def _request(settings: Settings, method: str, path: str, body: dict[str, Any] | None = None,
@@ -40,11 +43,21 @@ def _request(settings: Settings, method: str, path: str, body: dict[str, Any] | 
         headers["Authorization"] = f"Bearer {settings.llm_api_key}"
     data = json.dumps(body).encode("utf-8") if body is not None else None
     request = urllib.request.Request(f"{settings.llm_base_url}{path}", data=data, headers=headers, method=method)
+    if not _SLOTS.acquire(blocking=False):
+        raise LocalModelError("Local model is busy; at most two requests may run at once.")
     try:
         with _OPENER.open(request, timeout=timeout or settings.llm_timeout_seconds) as response:
-            return json.loads(response.read().decode("utf-8"))
-    except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
-        raise LocalModelError(f"Local model endpoint error: {exc}") from exc
+            raw = response.read(MAX_RESPONSE_BYTES + 1)
+            if len(raw) > MAX_RESPONSE_BYTES:
+                raise LocalModelError("Local model response exceeded 1 MiB.")
+            result = json.loads(raw.decode("utf-8"))
+            if not isinstance(result, dict):
+                raise LocalModelError("Local model returned a non-object response.")
+            return result
+    except (urllib.error.URLError, TimeoutError, OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise LocalModelError(f"Local model request failed ({type(exc).__name__}).") from exc
+    finally:
+        _SLOTS.release()
 
 
 def model_status(settings: Settings) -> dict[str, Any]:
