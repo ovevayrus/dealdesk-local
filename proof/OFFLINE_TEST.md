@@ -1,5 +1,7 @@
 # Offline test (GB10, network off)
 
+**Status: not completed by this review.** This is an owner-operated hardware checklist. Disabling networking or changing containers requires separate authorization; do not run these steps from an automated documentation/test workflow.
+
 Goal: show that a full DealDesk quote, including the local model's reply and an OpenClaw tool
 call, works with every network link on the GB10 turned off. Do this at the GB10's own keyboard
 and screen, because turning off networking also cuts any SSH or remote-desktop session.
@@ -63,7 +65,7 @@ curl -s http://127.0.0.1:8000/api/status | python3 -m json.tool | grep -A4 exter
 Expected: an answer in about 16 s (15.7 s measured online) with the same figures, and `last_caller: "openclaw"` with
 `tool_calls_observed` one higher than before. The chat page shows a new "Local agent tool call".
 
-Optional: run `python3 proof/capture_egress.py 60 proof/egress_offline_raw.log
+Optional: run `python3 proof/capture_egress.py 60 data/runtime/evidence/egress_offline_raw.log
 proof/NETWORK_SUMMARY_OFFLINE.md` while asking the question. Offline, provider DNS names do not
 resolve, so the provider list will be empty; the useful result is that every demo connection is
 to `127.0.0.1`.

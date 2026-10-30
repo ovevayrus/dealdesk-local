@@ -3,7 +3,7 @@
 - Window: 2026-10-25 16:56:19 to 17:06:19 CDT (600s, 0.5s sampling)
 - Host sockets: `ss -tunpH`. vLLM container sockets: `/proc/72276/net/{tcp,tcp6,udp,udp6}`
 - Provider addresses checked: 96 IPs from 20 hostnames (api.openai.com, api.anthropic.com, generativelanguage.googleapis.com, aiplatform.googleapis.com, integrate.api.nvidia.com, api.nvcf.nvidia.com, api.mistral.ai, api.groq.com, openrouter.ai, api.together.xyz, api.cohere.com, api.fireworks.ai, api.deepseek.com, api.x.ai, api.perplexity.ai, huggingface.co, router.huggingface.co, api-inference.huggingface.co, bedrock-runtime.us-east-1.amazonaws.com, openai.azure.com)
-- Raw log: `proof/egress_raw.log`
+- Raw capture was previously tracked at `proof/egress_raw.log`. It was removed from the current tree to keep host/socket metadata out of future public evidence; earlier Git history still contains it. Future raw captures belong under ignored `data/runtime/evidence/`.
 
 **Model-provider connections from the DealDesk app, vLLM, or OpenClaw: NONE**
 

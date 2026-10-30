@@ -18,10 +18,11 @@ import socket
 import subprocess
 import sys
 import time
+from pathlib import Path
 from collections import defaultdict
 
 SECONDS = int(sys.argv[1]) if len(sys.argv) > 1 else 120
-RAW = sys.argv[2] if len(sys.argv) > 2 else "proof/egress_raw.log"
+RAW = sys.argv[2] if len(sys.argv) > 2 else "data/runtime/evidence/egress_raw.log"
 SUMMARY = sys.argv[3] if len(sys.argv) > 3 else "proof/EGRESS_SUMMARY.md"
 CONTAINER = "vllm-qwen"
 # Processes that make up the demo: the DealDesk app, vLLM, and OpenClaw (node).
@@ -118,6 +119,7 @@ def is_local(ip):
 
 
 def main():
+    Path(RAW).parent.mkdir(parents=True, exist_ok=True)
     providers = resolve(PROVIDER_HOSTS)
     telemetry = resolve(TELEMETRY_HOSTS)
     cpid = container_pid()
