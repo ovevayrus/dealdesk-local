@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 
 from . import __version__, llm
 from .agent import Agent
+from .boundary import LocalDemoBoundary
 from .config import LOCAL_MODEL, Settings, get_settings
 from .costs import REFERENCE_QUOTE_ID
 from .state import Store
@@ -38,6 +39,7 @@ class ToolRequest(BaseModel):
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
+    settings.validate_demo_boundary()
     store = Store(settings.db_path)
     tools = DemoTools(settings, store)
     agent = Agent(settings, tools)
@@ -62,6 +64,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 await task
 
     app = FastAPI(title="DealDesk Local (synthetic demo)", version=__version__, lifespan=lifespan)
+    app.add_middleware(LocalDemoBoundary, host=settings.host)
     app.state.settings, app.state.store, app.state.tools, app.state.agent = settings, store, tools, agent
 
     def status() -> dict[str, Any]:

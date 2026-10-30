@@ -254,6 +254,7 @@ def run_tool(tools: DemoTools, store: Store, name: str, arguments: dict[str, Any
     """Run one named tool for an external local agent (HTTP or CLI) and log it for the viewer."""
     if not isinstance(arguments, dict):
         raise TypeError("arguments must be a JSON object")
+    _validate_arguments(name, arguments)
     if name == "search_documents":
         result: Any = tools.search_documents(str(arguments.get("query", "")), account_id=arguments.get("account_id"),
                                              doc_types=arguments.get("doc_types"),
@@ -276,3 +277,31 @@ def run_tool(tools: DemoTools, store: Store, name: str, arguments: dict[str, Any
     store.add_message("event", {"kind": "tool_call", "caller": caller, "tool": name, "arguments": arguments,
                                 "summary": summary, "result": result})
     return {"tool": name, "caller": caller, "summary": summary, "result": result}
+
+
+def _validate_arguments(name: str, arguments: dict[str, Any]) -> None:
+    """Reject excessive work before running a tool or retaining its arguments."""
+    keys = {
+        "search_documents": {"query", "account_id", "doc_types", "limit"},
+        "price_deal": {"offer_revenue", "currency"},
+        "forecast_costs": {"horizon"},
+        "apply_demo_cost_update": {"preview"},
+    }
+    if name not in keys or set(arguments) - keys[name]:
+        raise ValueError("Unknown tool or unsupported argument.")
+    for key, bound in (("query", 2000), ("account_id", 100), ("currency", 3)):
+        value = arguments.get(key)
+        if value is not None and (not isinstance(value, str) or len(value) > bound):
+            raise ValueError(f"{key} must be a string of at most {bound} characters.")
+    for key, default, low, high in (("limit", 4, 1, 20), ("horizon", 6, 1, 24)):
+        if key in keys[name]:
+            value = arguments.get(key, default)
+            if type(value) is not int or not low <= value <= high:
+                raise ValueError(f"{key} must be an integer between {low} and {high}.")
+    types = arguments.get("doc_types")
+    if types is not None and (not isinstance(types, list) or len(types) > 10 or
+                              any(not isinstance(t, str) or len(t) > 80 for t in types)):
+        raise ValueError("doc_types must contain at most 10 short document type names.")
+    offer = arguments.get("offer_revenue")
+    if offer is not None and (isinstance(offer, (dict, list, bool)) or len(str(offer)) > 64):
+        raise ValueError("offer_revenue must be a short decimal value.")

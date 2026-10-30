@@ -58,6 +58,16 @@ class Settings:
     watch_interval_seconds: float = 5.0
     state_dir: Path = field(default_factory=lambda: ROOT / "data" / "runtime")
 
+    def validate_demo_boundary(self) -> None:
+        try:
+            loopback = self.host == "localhost" or ipaddress.ip_address(self.host).is_loopback
+        except ValueError:
+            loopback = False
+        if not loopback:
+            raise ValueError("DEALDESK_HOST must be a loopback address or localhost; this demo has no authentication.")
+        if not 1 <= self.llm_timeout_seconds <= 60:
+            raise ValueError("DEALDESK_LLM_TIMEOUT_SECONDS must be between 1 and 60.")
+
     @property
     def incoming_feed_dir(self) -> Path:
         return self.state_dir / "incoming_feeds"
